@@ -59,6 +59,7 @@ export interface Product {
   category?: Category | null;
   product_images?: ProductImage[];
   images?: string[];
+  image_url?: string | null;
 }
 
 export interface OrderItem {

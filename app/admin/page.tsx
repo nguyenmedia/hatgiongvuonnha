@@ -303,7 +303,7 @@ export default function AdminDashboardPage() {
               {lowStockProducts.map((p) => (
                 <div key={p.id} className="flex items-center justify-between p-3 rounded-2xl bg-amber-50/60 border border-amber-200/60">
                   <div className="flex items-center gap-3">
-                    <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded-xl object-cover border" />
+                    <img src={p.images?.[0] || p.image_url || 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=800&q=80'} alt={p.name} className="w-10 h-10 rounded-xl object-cover border" />
                     <div>
                       <div className="text-xs font-bold text-slate-900 line-clamp-1">{p.name}</div>
                       <div className="text-[11px] text-amber-700 font-semibold">Còn {p.stock} gói</div>
