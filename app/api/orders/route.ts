@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer, isServerSupabaseConfigured } from '@/lib/supabase/server';
 import { sendTelegramOrderNotification } from '@/lib/telegram';
-import { generateOrderCode } from '@/lib/utils';
+import { generateOrderCode, isValidUUID } from '@/lib/utils';
 import { Order, OrderItem } from '@/types/database.types';
 
 export async function POST(req: NextRequest) {
@@ -52,10 +52,6 @@ export async function POST(req: NextRequest) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-
-function isValidUUID(uuid: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uuid);
-}
 
     const orderItems: OrderItem[] = items.map((item: any) => {
       const rawPid = item.product_id || item.product?.id || null;

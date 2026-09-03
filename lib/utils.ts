@@ -91,3 +91,8 @@ export function getOrderStatusLabel(status: string): { label: string; color: str
       return { label: status, color: 'text-gray-700', bg: 'bg-gray-50 border-gray-200', badgeClass: 'bg-gray-50 text-gray-700 border-gray-200' };
   }
 }
+
+export function isValidUUID(uuid: string): boolean {
+  if (!uuid) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uuid);
+}
