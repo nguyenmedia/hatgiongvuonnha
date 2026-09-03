@@ -75,19 +75,19 @@ export function isProductInCategory(productCatId: string | null | undefined, cat
   return false;
 }
 
-export function getOrderStatusLabel(status: string): { label: string; color: string; bg: string } {
+export function getOrderStatusLabel(status: string): { label: string; color: string; bg: string; badgeClass: string } {
   switch (status) {
     case 'pending':
-      return { label: 'Chờ xác nhận', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' };
+      return { label: 'Chờ xác nhận', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', badgeClass: 'bg-amber-50 text-amber-700 border-amber-200' };
     case 'confirmed':
-      return { label: 'Đã xác nhận', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' };
+      return { label: 'Đã xác nhận', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200', badgeClass: 'bg-blue-50 text-blue-700 border-blue-200' };
     case 'shipping':
-      return { label: 'Đang giao hàng', color: 'text-indigo-700', bg: 'bg-indigo-50 border-indigo-200' };
+      return { label: 'Đang giao hàng', color: 'text-indigo-700', bg: 'bg-indigo-50 border-indigo-200', badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
     case 'completed':
-      return { label: 'Hoàn thành', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' };
+      return { label: 'Hoàn thành', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
     case 'cancelled':
-      return { label: 'Đã hủy', color: 'text-rose-700', bg: 'bg-rose-50 border-rose-200' };
+      return { label: 'Đã hủy', color: 'text-rose-700', bg: 'bg-rose-50 border-rose-200', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200' };
     default:
-      return { label: status, color: 'text-gray-700', bg: 'bg-gray-50 border-gray-200' };
+      return { label: status, color: 'text-gray-700', bg: 'bg-gray-50 border-gray-200', badgeClass: 'bg-gray-50 text-gray-700 border-gray-200' };
   }
 }
