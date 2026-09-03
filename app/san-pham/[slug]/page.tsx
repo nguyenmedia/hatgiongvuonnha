@@ -268,7 +268,7 @@ export default function ProductDetailPage({ params }: Props) {
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-center space-y-1 hover:bg-emerald-50/50 transition">
                   <Award className="w-5 h-5 text-emerald-600 mx-auto" />
                   <div className="text-xs font-extrabold text-slate-900">Giống F1 Thuần</div>
-                  <div className="text-[10px] text-slate-500">Mầm khỏe nảy >85%</div>
+                  <div className="text-[10px] text-slate-500">Mầm khỏe nảy &gt;85%</div>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-center space-y-1 hover:bg-emerald-50/50 transition">
