@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { 
   Search, ShoppingBag, Heart, Phone, Menu, X, 
-  ChevronDown, Sparkles, User, ArrowRight, ShieldCheck, Truck, Clock, ChevronRight
+  ChevronDown, Sparkles, User, ArrowRight, ShieldCheck, Truck, Clock, ChevronRight,
+  LayoutGrid, Flame, Sprout, Tag, Layers
 } from 'lucide-react';
 import { useCart } from '../providers/CartProvider';
 import { useWishlist } from '../providers/WishlistProvider';
@@ -34,7 +35,10 @@ export function Header() {
   const [isSearching, setIsSearching] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+
   const searchRef = useRef<HTMLDivElement>(null);
+  const categoryMenuRef = useRef<HTMLDivElement>(null);
 
   // Load categories from Supabase / localStorage on mount & realtime updates
   useEffect(() => {
@@ -99,11 +103,14 @@ export function Header() {
     setSearchResults(filtered);
   }, [searchQuery]);
 
-  // Click outside search results
+  // Click outside search results & category menu
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setIsSearching(false);
+      }
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target as Node)) {
+        setIsCategoryMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -121,11 +128,11 @@ export function Header() {
   return (
     <header className="w-full z-40 relative">
       {/* Top Banner Bar */}
-      <div className="bg-forest-900 text-white text-xs py-1.5 px-3 sm:px-4 border-b border-forest-800">
+      <div className="bg-forest-950 text-white text-xs py-1.5 px-3 sm:px-4 border-b border-forest-900">
         <div className="max-w-7xl mx-auto flex justify-between items-center text-[11px] sm:text-xs">
           <div className="flex items-center gap-1.5 text-emerald-300 font-medium truncate max-w-[60%] sm:max-w-none">
-            <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-300" />
-            <span className="truncate">Gieo hạt hôm nay – Nở hoa ngày mai</span>
+            <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-300 animate-pulse" />
+            <span className="truncate">Gieo hạt hôm nay – Nở hoa ngày mai (Chủng giống F1 cao cấp)</span>
           </div>
           <div className="flex items-center gap-4 text-gray-300 shrink-0">
             <a 
@@ -135,7 +142,7 @@ export function Header() {
               <Phone className="w-3.5 h-3.5 text-amber-400" />
               <span><span className="hidden sm:inline">Hotline/Zalo: </span>{settings.hotline}</span>
             </a>
-            <span className="hidden sm:inline text-forest-700">|</span>
+            <span className="hidden sm:inline text-forest-800">|</span>
             <Link href="/tra-cuu-don-hang" className="hover:text-white transition hidden sm:inline">
               Tra cứu đơn hàng
             </Link>
@@ -144,7 +151,7 @@ export function Header() {
       </div>
 
       {/* Main Navbar */}
-      <div className={`transition-all duration-300 ${isScrolled ? 'sticky top-0 shadow-md glass-nav' : 'bg-white border-b border-gray-100'}`}>
+      <div className={`transition-all duration-300 ${isScrolled ? 'sticky top-0 shadow-md glass-nav' : 'bg-white border-b border-slate-100'}`}>
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
             
@@ -158,14 +165,14 @@ export function Header() {
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
 
-              <Link href="/" className="flex items-center gap-2 group">
+              <Link href="/" className="flex items-center gap-2.5 group">
                 <img
                   src="/logo.png"
                   alt="Logo Hạt Giống Nhà Vườn"
-                  className="h-9 sm:h-12 w-auto max-w-[120px] sm:max-w-[160px] object-contain group-hover:scale-105 transition-transform"
+                  className="h-10 sm:h-12 w-auto max-w-[120px] sm:max-w-[160px] object-contain group-hover:scale-105 transition-transform"
                 />
                 <div className="flex flex-col">
-                  <span className="font-extrabold text-sm sm:text-xl tracking-tight text-forest-950 font-serif leading-none">
+                  <span className="font-extrabold text-base sm:text-xl tracking-tight text-forest-950 font-serif leading-none">
                     HẠT GIỐNG <span className="text-forest-600 font-sans font-bold">NHÀ VƯỜN</span>
                   </span>
                   <span className="text-[8px] sm:text-[9px] text-forest-700 tracking-wider uppercase font-extrabold mt-0.5 hidden xs:block sm:block">
@@ -180,16 +187,16 @@ export function Header() {
               <form onSubmit={handleSearchSubmit} className="w-full relative">
                 <input
                   type="text"
-                  placeholder="Tìm hạt giống hoa hướng dương, dạ yến thảo, rau củ..."
+                  placeholder="Tìm hạt giống hoa, rau củ, quả, cây cảnh..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => searchQuery.trim() && setIsSearching(true)}
-                  className="w-full pl-11 pr-24 py-2.5 rounded-full border border-forest-200 bg-forest-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-sm transition"
+                  className="w-full pl-11 pr-24 py-2.5 rounded-full border border-forest-200 bg-forest-50/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-xs sm:text-sm transition shadow-2xs font-medium"
                 />
                 <Search className="w-4 h-4 text-forest-600 absolute left-4 top-3.5" />
                 <button
                   type="submit"
-                  className="absolute right-1.5 top-1.5 px-4 py-1.5 bg-forest-700 hover:bg-forest-800 text-white text-xs font-semibold rounded-full transition"
+                  className="absolute right-1.5 top-1.5 px-4 py-1.5 bg-forest-800 hover:bg-forest-900 text-white text-xs font-bold rounded-full transition shadow-xs"
                 >
                   Tìm kiếm
                 </button>
@@ -198,9 +205,9 @@ export function Header() {
               {/* Live Search Suggestion Box */}
               {isSearching && searchResults.length > 0 && (
                 <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="p-3 bg-forest-50 text-xs font-semibold text-forest-800 border-b flex justify-between items-center">
+                  <div className="p-3 bg-forest-50 text-xs font-bold text-forest-800 border-b flex justify-between items-center">
                     <span>Gợi ý sản phẩm ({searchResults.length})</span>
-                    <span className="text-gray-500 font-normal">Nhấn Enter để xem tất cả</span>
+                    <span className="text-gray-400 font-normal text-[11px]">Nhấn Enter để xem tất cả</span>
                   </div>
                   <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
                     {searchResults.map((item) => (
@@ -210,7 +217,7 @@ export function Header() {
                         onClick={() => setIsSearching(false)}
                         className="flex items-center gap-3 p-3 hover:bg-forest-50/60 transition group"
                       >
-                        <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0">
+                        <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0 border">
                           <img
                             src={item.images?.[0] || 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=800&q=80'}
                             alt={item.name}
@@ -218,11 +225,11 @@ export function Header() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-xs font-semibold text-gray-900 group-hover:text-forest-700 truncate">
+                          <h4 className="text-xs font-bold text-gray-900 group-hover:text-forest-700 truncate">
                             {item.name}
                           </h4>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs font-bold text-forest-700">
+                            <span className="text-xs font-extrabold text-forest-700">
                               {formatPrice(item.sale_price || item.price)}
                             </span>
                             {item.sale_price && (
@@ -272,7 +279,7 @@ export function Header() {
                     </span>
                   )}
                 </div>
-                <span className="text-xs font-semibold hidden sm:inline">Giỏ hàng</span>
+                <span className="text-xs font-extrabold hidden sm:inline">Giỏ hàng</span>
               </button>
 
               {/* Account Link */}
@@ -286,7 +293,7 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile Quick Search Bar (Shopee/Tiki Mobile Style) */}
+          {/* Mobile Quick Search Bar */}
           <div className="md:hidden pb-3 pt-0">
             <form onSubmit={handleSearchSubmit} className="relative">
               <input
@@ -307,33 +314,147 @@ export function Header() {
           </div>
         </div>
 
-        {/* Categories Navigation Bar (Desktop) */}
-        <nav className="hidden lg:block border-t border-forest-100 bg-forest-50/70">
+        {/* Categories Navigation Bar (Desktop - Compact & Modern) */}
+        <nav className="hidden lg:block border-t border-slate-100 bg-white/95 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ul className="flex items-center justify-start gap-6 overflow-x-auto text-sm font-medium text-forest-900 py-2.5 scrollbar-none">
-              <li>
-                <Link href="/" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-semibold shrink-0">
-                  <span>Trang chủ</span>
-                </Link>
-              </li>
-              {categories.map((cat) => (
-                <li key={cat.id}>
-                  <Link href={`/danh-muc/${cat.slug}`} className="hover:text-forest-600 transition flex items-center gap-1.5 py-1 shrink-0 font-medium">
-                    <span>{cat.icon || '🌱'} {cat.name}</span>
+            <div className="flex items-center justify-between h-11 text-xs sm:text-sm font-bold text-slate-800">
+              
+              {/* Left: Mega Category Dropdown Trigger */}
+              <div className="relative" ref={categoryMenuRef}>
+                <button
+                  onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+                  onMouseEnter={() => setIsCategoryMenuOpen(true)}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all shadow-2xs ${
+                    isCategoryMenuOpen 
+                      ? 'bg-forest-900 text-white shadow' 
+                      : 'bg-forest-800 hover:bg-forest-900 text-white'
+                  }`}
+                >
+                  <LayoutGrid className="w-4 h-4 text-amber-300" />
+                  <span>DANH MỤC SẢN PHẨM</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180 text-amber-300' : 'text-emerald-200'}`} />
+                </button>
+
+                {/* Mega Dropdown Panel */}
+                {isCategoryMenuOpen && (
+                  <div 
+                    onMouseLeave={() => setIsCategoryMenuOpen(false)}
+                    className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2.5 z-50 animate-in fade-in slide-in-from-top-2"
+                  >
+                    <div className="px-3 py-2 text-[11px] font-extrabold uppercase tracking-wider text-forest-800 bg-forest-50/80 rounded-xl mb-1.5 flex items-center justify-between">
+                      <span>Tất cả danh mục ({categories.length})</span>
+                      <span className="text-[10px] text-emerald-700 font-bold">Hạt giống F1</span>
+                    </div>
+
+                    <div className="space-y-1 max-h-96 overflow-y-auto pr-1">
+                      {categories.map((cat) => (
+                        <Link
+                          key={cat.id}
+                          href={`/danh-muc/${cat.slug}`}
+                          onClick={() => setIsCategoryMenuOpen(false)}
+                          className="flex items-center justify-between p-2 rounded-xl hover:bg-forest-50/80 group transition"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="w-8 h-8 rounded-xl bg-slate-50 group-hover:bg-emerald-100 text-slate-700 group-hover:text-forest-900 flex items-center justify-center text-sm transition shrink-0 border border-slate-100">
+                              {cat.icon || '🌱'}
+                            </span>
+                            <div className="min-w-0">
+                              <h4 className="text-xs font-bold text-slate-900 group-hover:text-forest-800 truncate">
+                                {cat.name}
+                              </h4>
+                              <p className="text-[10px] text-slate-400 group-hover:text-slate-500 truncate">
+                                /{cat.slug}
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-forest-700 group-hover:translate-x-0.5 transition" />
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="pt-2 mt-1.5 border-t border-slate-100 text-center">
+                      <Link
+                        href="/san-pham"
+                        onClick={() => setIsCategoryMenuOpen(false)}
+                        className="block py-2 text-xs font-extrabold text-forest-800 hover:text-forest-950 hover:bg-forest-50 rounded-xl transition"
+                      >
+                        Xem tất cả sản phẩm hạt giống 🌱 →
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Horizontal Quick Links (Single Line, Never Wraps) */}
+              <ul className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none font-semibold text-slate-700">
+                <li>
+                  <Link
+                    href="/"
+                    className={`px-3 py-1.5 rounded-xl transition whitespace-nowrap text-xs font-bold flex items-center gap-1 ${
+                      pathname === '/' 
+                        ? 'bg-forest-50 text-forest-800 font-extrabold' 
+                        : 'hover:text-forest-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>Trang chủ</span>
                   </Link>
                 </li>
-              ))}
-              <li>
-                <Link href="/blog" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-medium text-forest-700 shrink-0">
-                  <span>Cẩm nang làm vườn</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/lien-he" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-medium text-forest-700 shrink-0">
-                  <span>Liên hệ</span>
-                </Link>
-              </li>
-            </ul>
+
+                {categories.slice(0, 4).map((cat) => (
+                  <li key={cat.id}>
+                    <Link
+                      href={`/danh-muc/${cat.slug}`}
+                      className={`px-3 py-1.5 rounded-xl transition whitespace-nowrap text-xs font-bold flex items-center gap-1.5 ${
+                        pathname === `/danh-muc/${cat.slug}`
+                          ? 'bg-forest-50 text-forest-800 font-extrabold'
+                          : 'hover:text-forest-800 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className="text-sm">{cat.icon || '🌱'}</span>
+                      <span>{cat.name}</span>
+                    </Link>
+                  </li>
+                ))}
+
+                <li>
+                  <Link
+                    href="/san-pham?sale=true"
+                    className="px-3 py-1.5 rounded-xl text-rose-600 hover:bg-rose-50 font-extrabold transition whitespace-nowrap text-xs flex items-center gap-1"
+                  >
+                    <Flame className="w-3.5 h-3.5 text-rose-500 animate-bounce" />
+                    <span>Khuyến mãi</span>
+                    <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-wider ml-0.5">HOT</span>
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    href="/blog"
+                    className={`px-3 py-1.5 rounded-xl transition whitespace-nowrap text-xs font-bold flex items-center gap-1 ${
+                      pathname === '/blog'
+                        ? 'bg-forest-50 text-forest-800 font-extrabold'
+                        : 'hover:text-forest-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>Cẩm nang</span>
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    href="/lien-he"
+                    className={`px-3 py-1.5 rounded-xl transition whitespace-nowrap text-xs font-bold flex items-center gap-1 ${
+                      pathname === '/lien-he'
+                        ? 'bg-forest-50 text-forest-800 font-extrabold'
+                        : 'hover:text-forest-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>Liên hệ</span>
+                  </Link>
+                </li>
+              </ul>
+
+            </div>
           </div>
         </nav>
       </div>
