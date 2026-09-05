@@ -13,9 +13,11 @@ import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_POSTS, DEFAULT_SETTINGS }
 import { ProductCard } from '@/components/product/ProductCard';
 import { Product, Category } from '@/types/database.types';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
+import { useRealtime } from '@/components/providers/RealtimeProvider';
 
 export default function HomePage() {
   const router = useRouter();
+  const { lastUpdated } = useRealtime();
   const [activeTab, setActiveTab] = useState<'all' | 'hoa' | 'rau' | 'qua' | 'vat-tu'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -24,8 +26,11 @@ export default function HomePage() {
   useEffect(() => {
     async function loadData() {
       let deletedIds: string[] = [];
+      let localSavedCats: Category[] = [];
       try {
         deletedIds = JSON.parse(localStorage.getItem('deleted_product_ids') || '[]');
+        const storedCats = localStorage.getItem('custom_categories');
+        if (storedCats) localSavedCats = JSON.parse(storedCats);
       } catch (e) {}
 
       let supabaseProds: Product[] = [];
@@ -35,7 +40,7 @@ export default function HomePage() {
         try {
           const [prodRes, catRes] = await Promise.all([
             supabase.from('products').select('*').order('created_at', { ascending: false }),
-            supabase.from('categories').select('*').order('sort_order', { ascending: true })
+            supabase.from('categories').select('*').eq('status', true).order('sort_order', { ascending: true })
           ]);
 
           if (catRes.data && catRes.data.length > 0) supabaseCats = catRes.data;
@@ -45,7 +50,20 @@ export default function HomePage() {
         }
       }
 
-      if (supabaseCats.length > 0) setCategories(supabaseCats);
+      // Sync Categories: Prioritize Supabase, then localStorage, merged with INITIAL_CATEGORIES
+      const activeCustomCats = supabaseCats.length > 0 ? supabaseCats : localSavedCats;
+      if (activeCustomCats.length > 0) {
+        const customMap = new Map(activeCustomCats.map((c) => [c.id, c]));
+        const customSlugMap = new Map(activeCustomCats.map((c) => [c.slug, c]));
+
+        const mergedCats = [
+          ...activeCustomCats,
+          ...INITIAL_CATEGORIES.filter((c) => !customMap.has(c.id) && !customSlugMap.has(c.slug))
+        ];
+        setCategories(mergedCats);
+      } else {
+        setCategories(INITIAL_CATEGORIES);
+      }
 
       const fetchedMap = new Map(supabaseProds.map((p) => [p.id, p]));
       const combined = [
@@ -56,7 +74,7 @@ export default function HomePage() {
       setProducts(combined);
     }
     loadData();
-  }, []);
+  }, [lastUpdated]);
 
   // Countdown timer for Flash Sale (24h timer)
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 32, seconds: 45 });
@@ -324,13 +342,13 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4">
-            {INITIAL_CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/danh-muc/${cat.slug}`}
                 className="group p-4 rounded-2xl bg-white border border-gray-200/80 hover:border-forest-500 hover:shadow-premium transition-all duration-300 text-center flex flex-col items-center justify-between"
               >
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gray-50 mb-3 border border-gray-100 group-hover:scale-105 transition-transform duration-300 relative">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gray-50 mb-3 border border-gray-100 group-hover:scale-105 transition-transform duration-300 relative shadow-2xs">
                   <img
                     src={cat.image_url || 'https://images.unsplash.com/photo-1508615039623-a25605d2b022?w=800&q=80'}
                     alt={cat.name}
@@ -338,7 +356,7 @@ export default function HomePage() {
                   />
                 </div>
                 <div>
-                  <div className="text-xl mb-1">{cat.icon}</div>
+                  <div className="text-xl mb-1">{cat.icon || '🌱'}</div>
                   <h3 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-forest-700 transition line-clamp-1">
                     {cat.name}
                   </h3>

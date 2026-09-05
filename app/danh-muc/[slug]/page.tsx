@@ -25,9 +25,11 @@ export default function CategoryPage({ params }: Props) {
 
   useEffect(() => {
     async function loadData() {
-      let deletedIds: string[] = [];
+      let localSavedCats: Category[] = [];
       try {
         deletedIds = JSON.parse(localStorage.getItem('deleted_product_ids') || '[]');
+        const storedCats = localStorage.getItem('custom_categories');
+        if (storedCats) localSavedCats = JSON.parse(storedCats);
       } catch (e) {}
 
       let allCats = INITIAL_CATEGORIES;
@@ -42,6 +44,8 @@ export default function CategoryPage({ params }: Props) {
 
           if (catRes.data && catRes.data.length > 0) {
             allCats = catRes.data;
+          } else if (localSavedCats.length > 0) {
+            allCats = localSavedCats;
           }
 
           if (prodRes.data && prodRes.data.length > 0) {
@@ -54,6 +58,8 @@ export default function CategoryPage({ params }: Props) {
         } catch (err) {
           console.error('Error loading category data:', err);
         }
+      } else if (localSavedCats.length > 0) {
+        allCats = localSavedCats;
       }
 
       // Exclude deleted products
