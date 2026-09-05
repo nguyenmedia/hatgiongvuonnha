@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { 
   Search, ShoppingBag, Heart, Phone, Menu, X, 
-  ChevronDown, Sparkles, User, ArrowRight, ShieldCheck, Truck, Clock
+  ChevronDown, Sparkles, User, ArrowRight, ShieldCheck, Truck, Clock, ChevronRight
 } from 'lucide-react';
 import { useCart } from '../providers/CartProvider';
 import { useWishlist } from '../providers/WishlistProvider';

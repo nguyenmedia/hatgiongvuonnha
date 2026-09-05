@@ -235,14 +235,14 @@ export default function AccountPage() {
                           ⏳ Chờ xác nhận / Đang xử lý
                         </span>
                         <span className="font-extrabold text-emerald-800 text-sm">
-                          {formatPrice(ord.total_amount)}
+                          {formatPrice(ord.total)}
                         </span>
                       </div>
                     </div>
 
                     <div className="text-xs text-slate-600 pt-1 flex items-center justify-between flex-wrap gap-2">
                       <div>
-                        Người nhận: <strong>{ord.customer_name}</strong> ({ord.customer_phone})
+                        Người nhận: <strong>{ord.customer_name}</strong> ({ord.phone})
                       </div>
                       
                       <Link

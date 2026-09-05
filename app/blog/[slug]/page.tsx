@@ -21,6 +21,7 @@ export default function BlogPostDetail({ params }: Props) {
 
   if (!post) {
     notFound();
+    return null;
   }
 
   const otherPosts = INITIAL_POSTS.filter((p) => p.id !== post.id);

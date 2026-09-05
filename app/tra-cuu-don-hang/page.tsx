@@ -157,9 +157,9 @@ export default function OrderTrackingPage() {
 
   const copyBankInfo = () => {
     if (!order) return;
-    const bankName = settings.bank_info?.bank_name || 'MB Bank';
-    const accNum = settings.bank_info?.account_number || '7986868686';
-    const accHolder = settings.bank_info?.account_holder || 'NGUYỄN CÔNG NGUYÊN';
+    const bankName = settings.bank_name || 'MB Bank';
+    const accNum = settings.account_number || '7986868686';
+    const accHolder = settings.account_holder || 'NGUYỄN CÔNG NGUYÊN';
     const infoText = `${bankName}\nSTK: ${accNum}\nCTK: ${accHolder}\nNội dung: ${order.order_code}`;
     navigator.clipboard.writeText(infoText);
     setCopied(true);
@@ -395,9 +395,9 @@ export default function OrderTrackingPage() {
                       </div>
                       <h4 className="text-sm font-bold text-white font-serif">Thông Tin Chuyển Khoản Ngân Hàng</h4>
                       <div className="text-xs text-emerald-200 space-y-1">
-                        <div>Ngân hàng: <strong>{settings.bank_info?.bank_name || 'MB Bank'}</strong></div>
-                        <div>Số tài khoản: <strong className="text-amber-300">{settings.bank_info?.account_number || '7986868686'}</strong></div>
-                        <div>Chủ tài khoản: <strong>{settings.bank_info?.account_holder || 'NGUYỄN CÔNG NGUYÊN'}</strong></div>
+                        <div>Ngân hàng: <strong>{settings.bank_name || 'MB Bank'}</strong></div>
+                        <div>Số tài khoản: <strong className="text-amber-300">{settings.account_number || '7986868686'}</strong></div>
+                        <div>Chủ tài khoản: <strong>{settings.account_holder || 'NGUYỄN CÔNG NGUYÊN'}</strong></div>
                         <div>Nội dung CK: <strong className="text-amber-300 font-mono bg-forest-900 px-2 py-0.5 rounded border border-emerald-700">{order.order_code}</strong></div>
                       </div>
 
