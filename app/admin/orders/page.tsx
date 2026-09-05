@@ -88,23 +88,32 @@ export default function AdminOrdersPage() {
         localOrders = JSON.parse(localStorage.getItem('all_placed_orders') || '[]');
       } catch (e) {}
 
-      // 2. Fetch Supabase orders if configured
+      // 2. Fetch Server API & Supabase orders
       let supabaseOrders: Order[] = [];
-      if (isSupabaseConfigured) {
+      try {
+        const apiRes = await fetch('/api/admin/orders');
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.success && apiData.orders && apiData.orders.length > 0) {
+            supabaseOrders = apiData.orders;
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching admin orders from API:', e);
+      }
+
+      if (supabaseOrders.length === 0 && isSupabaseConfigured) {
         try {
-          const { data, error: err } = await supabase
+          const { data } = await supabase
             .from('orders')
-            .select('*, order_items(*)')
+            .select('*')
             .order('created_at', { ascending: false });
 
           if (data && data.length > 0) {
-            supabaseOrders = data.map((ord: any) => ({
-              ...ord,
-              items: ord.order_items && ord.order_items.length > 0 ? ord.order_items : ord.items || [],
-            }));
+            supabaseOrders = data;
           }
         } catch (e) {
-          console.error('Error fetching admin orders:', e);
+          console.error('Error fetching admin orders from client:', e);
         }
       }
 
@@ -139,6 +148,14 @@ export default function AdminOrdersPage() {
   }, [lastUpdated]);
 
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+      await fetch('/api/admin/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId, status: newStatus }),
+      });
+    } catch (e) {}
+
     if (isSupabaseConfigured) {
       await supabase
         .from('orders')

@@ -78,7 +78,17 @@ export default function AdminDashboardPage() {
       } catch (e) {}
 
       let supabaseOrders: Order[] = [];
-      if (isSupabaseConfigured) {
+      try {
+        const apiRes = await fetch('/api/admin/orders');
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.success && apiData.orders && apiData.orders.length > 0) {
+            supabaseOrders = apiData.orders;
+          }
+        }
+      } catch (e) {}
+
+      if (supabaseOrders.length === 0 && isSupabaseConfigured) {
         try {
           const { data } = await supabase
             .from('orders')
@@ -89,18 +99,6 @@ export default function AdminDashboardPage() {
             supabaseOrders = data;
           }
         } catch (e) {}
-
-        supabase
-          .from('products')
-          .select('id', { count: 'exact', head: true })
-          .then(({ count }) => {
-            if (count !== null && count > 0) {
-              setStats((prev) => ({
-                ...prev,
-                totalProducts: count,
-              }));
-            }
-          });
       }
 
       const fetchedMap = new Map();
