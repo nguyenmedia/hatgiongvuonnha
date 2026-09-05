@@ -10,9 +10,11 @@ import {
 import { useCart } from '../providers/CartProvider';
 import { useWishlist } from '../providers/WishlistProvider';
 import { useSettings } from '../providers/SettingsProvider';
+import { useRealtime } from '../providers/RealtimeProvider';
 import { INITIAL_CATEGORIES, INITIAL_PRODUCTS } from '@/lib/constants';
 import { formatPrice } from '@/lib/utils';
-import { Product } from '@/types/database.types';
+import { Product, Category } from '@/types/database.types';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 
 export function Header() {
   const router = useRouter();
@@ -24,13 +26,49 @@ export function Header() {
   }
   const { totalItems, setIsCartOpen } = useCart();
   const { totalWishlist } = useWishlist();
+  const { lastUpdated } = useRealtime();
 
+  const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Load categories from Supabase / localStorage on mount & realtime updates
+  useEffect(() => {
+    async function loadNavCategories() {
+      let localSaved: Category[] = [];
+      try {
+        const stored = localStorage.getItem('custom_categories');
+        if (stored) localSaved = JSON.parse(stored);
+      } catch (e) {}
+
+      if (isSupabaseConfigured) {
+        try {
+          const { data } = await supabase
+            .from('categories')
+            .select('*')
+            .eq('status', true)
+            .order('sort_order', { ascending: true });
+          if (data && data.length > 0) {
+            setCategories(data);
+            return;
+          }
+        } catch (err) {
+          console.error('Error fetching nav categories:', err);
+        }
+      }
+
+      if (localSaved.length > 0) {
+        setCategories(localSaved.filter((c) => c.status !== false));
+      } else {
+        setCategories(INITIAL_CATEGORIES);
+      }
+    }
+    loadNavCategories();
+  }, [lastUpdated]);
 
   // Scroll event for sticky glass navbar
   useEffect(() => {
@@ -272,49 +310,26 @@ export function Header() {
         {/* Categories Navigation Bar (Desktop) */}
         <nav className="hidden lg:block border-t border-forest-100 bg-forest-50/70">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ul className="flex items-center justify-between text-sm font-medium text-forest-900 py-2.5">
+            <ul className="flex items-center justify-start gap-6 overflow-x-auto text-sm font-medium text-forest-900 py-2.5 scrollbar-none">
               <li>
-                <Link href="/" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-semibold">
+                <Link href="/" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-semibold shrink-0">
                   <span>Trang chủ</span>
                 </Link>
               </li>
+              {categories.map((cat) => (
+                <li key={cat.id}>
+                  <Link href={`/danh-muc/${cat.slug}`} className="hover:text-forest-600 transition flex items-center gap-1.5 py-1 shrink-0 font-medium">
+                    <span>{cat.icon || '🌱'} {cat.name}</span>
+                  </Link>
+                </li>
+              ))}
               <li>
-                <Link href="/danh-muc/hat-giong-hoa" className="hover:text-forest-600 transition flex items-center gap-1.5 py-1">
-                  <span>🌸 Hạt giống hoa</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/danh-muc/hat-giong-rau-cu" className="hover:text-forest-600 transition flex items-center gap-1.5 py-1">
-                  <span>🥬 Hạt giống rau</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/danh-muc/hat-giong-cay-canh" className="hover:text-forest-600 transition flex items-center gap-1.5 py-1">
-                  <span>🌵 Cây cảnh & Bonsai</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/danh-muc/hat-giong-cay-an-qua" className="hover:text-forest-600 transition flex items-center gap-1.5 py-1">
-                  <span>🍅 Cây ăn quả</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/danh-muc/dung-cu-lam-vuon" className="hover:text-forest-600 transition flex items-center gap-1.5 py-1">
-                  <span>🪴 Dụng cụ làm vườn</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/danh-muc/dat-trong-vat-tu" className="hover:text-forest-600 transition flex items-center gap-1.5 py-1">
-                  <span>🌱 Đất trồng & Vật tư</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-medium text-forest-700">
+                <Link href="/blog" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-medium text-forest-700 shrink-0">
                   <span>Cẩm nang làm vườn</span>
                 </Link>
               </li>
               <li>
-                <Link href="/lien-he" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-medium text-forest-700">
+                <Link href="/lien-he" className="hover:text-forest-600 transition flex items-center gap-1 py-1 font-medium text-forest-700 shrink-0">
                   <span>Liên hệ</span>
                 </Link>
               </li>
@@ -385,10 +400,10 @@ export function Header() {
               <div>
                 <div className="text-[11px] font-extrabold text-emerald-800 uppercase tracking-wider mb-2 px-1 flex items-center justify-between">
                   <span>Danh Mục Sản Phẩm</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Tất cả {INITIAL_CATEGORIES.length} mục</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Tất cả {categories.length} mục</span>
                 </div>
                 <ul className="space-y-1">
-                  {INITIAL_CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <li key={cat.id}>
                       <Link
                         href={`/danh-muc/${cat.slug}`}
@@ -397,7 +412,7 @@ export function Header() {
                       >
                         <span className="flex items-center gap-2.5">
                           <span className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center text-sm shadow-2xs">
-                            {cat.icon}
+                            {cat.icon || '🌱'}
                           </span>
                           <span>{cat.name}</span>
                         </span>

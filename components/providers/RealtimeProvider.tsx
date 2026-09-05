@@ -50,6 +50,14 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
             setLastUpdated(Date.now());
           }
         )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'categories' },
+          (payload) => {
+            console.log('[Realtime] Categories update received:', payload);
+            setLastUpdated(Date.now());
+          }
+        )
         .subscribe((status) => {
           if (status === 'SUBSCRIBED') {
             setIsRealtimeActive(true);
