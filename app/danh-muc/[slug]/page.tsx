@@ -25,6 +25,7 @@ export default function CategoryPage({ params }: Props) {
 
   useEffect(() => {
     async function loadData() {
+      let deletedIds: string[] = [];
       let localSavedCats: Category[] = [];
       try {
         deletedIds = JSON.parse(localStorage.getItem('deleted_product_ids') || '[]');
