@@ -6,12 +6,14 @@ import { useRouter } from 'next/navigation';
 import { User, Package, Heart, LogOut, ChevronRight, MapPin, Phone, Mail, Clock, CheckCircle2, Search, Sprout, ArrowRight } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import { useWishlist } from '@/components/providers/WishlistProvider';
+import { useRealtime } from '@/components/providers/RealtimeProvider';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { Order } from '@/types/database.types';
 
 export default function AccountPage() {
   const router = useRouter();
   const { totalWishlist } = useWishlist();
+  const { lastUpdated } = useRealtime();
   const [user, setUser] = useState<{ email?: string; name?: string; phone?: string; provider?: string } | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
@@ -39,7 +41,7 @@ export default function AccountPage() {
       }
     } catch (e) {}
 
-    // 2. Fetch Customer Orders
+    // 2. Fetch Customer Orders (Server API + Supabase + LocalStorage fallback)
     async function loadOrders() {
       let localOrders: Order[] = [];
       try {
@@ -49,7 +51,18 @@ export default function AccountPage() {
         }
       } catch (e) {}
 
-      if (isSupabaseConfigured) {
+      let fetchedOrders: Order[] = [];
+      try {
+        const apiRes = await fetch('/api/admin/orders');
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.success && apiData.orders && apiData.orders.length > 0) {
+            fetchedOrders = apiData.orders;
+          }
+        }
+      } catch (e) {}
+
+      if (fetchedOrders.length === 0 && isSupabaseConfigured) {
         try {
           const { data } = await supabase
             .from('orders')
@@ -57,24 +70,27 @@ export default function AccountPage() {
             .order('created_at', { ascending: false });
 
           if (data && data.length > 0) {
-            const map = new Map(data.map((o) => [o.id, o]));
-            const combined = [
-              ...data,
-              ...localOrders.filter((o) => !map.has(o.id))
-            ];
-            setOrders(combined);
-            setIsLoadingOrders(false);
-            return;
+            fetchedOrders = data;
           }
         } catch (e) {}
       }
 
-      setOrders(localOrders);
+      const map = new Map(fetchedOrders.map((o) => [o.order_code || o.id, o]));
+      localOrders.forEach((lo) => {
+        const key = lo.order_code || lo.id;
+        if (!map.has(key)) map.set(key, lo);
+      });
+
+      const finalOrders = Array.from(map.values()).sort(
+        (a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+      );
+
+      setOrders(finalOrders);
       setIsLoadingOrders(false);
     }
 
     loadOrders();
-  }, []);
+  }, [lastUpdated]);
 
   const handleLogout = async () => {
     if (isSupabaseConfigured) {

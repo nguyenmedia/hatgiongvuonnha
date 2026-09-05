@@ -58,6 +58,8 @@ export async function GET() {
   }
 }
 
+import { isValidUUID } from '@/lib/utils';
+
 export async function PATCH(req: NextRequest) {
   try {
     const { order_id, status } = await req.json();
@@ -66,10 +68,14 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (isServerSupabaseConfigured) {
-      const { error: updateErr } = await supabaseServer
+      const isUuid = isValidUUID(order_id);
+      const query = supabaseServer
         .from('orders')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', order_id);
+        .update({ status, updated_at: new Date().toISOString() });
+
+      const { error: updateErr } = isUuid
+        ? await query.eq('id', order_id)
+        : await query.eq('order_code', order_id);
 
       if (updateErr) {
         console.error('[Admin Order Status Update Error]:', updateErr);

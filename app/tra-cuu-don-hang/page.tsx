@@ -11,6 +11,7 @@ import { formatPrice, formatDate, getOrderStatusLabel } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import { Order } from '@/types/database.types';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
+import { useRealtime } from '@/components/providers/RealtimeProvider';
 
 const MOCK_TRACKING_ORDERS: Order[] = [
   {
@@ -74,6 +75,7 @@ import { useSettings } from '@/components/providers/SettingsProvider';
 
 export default function OrderTrackingPage() {
   const { settings } = useSettings();
+  const { lastUpdated } = useRealtime();
   const [query, setQuery] = useState('');
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -92,8 +94,26 @@ export default function OrderTrackingPage() {
 
     let foundOrder: Order | null = null;
 
-    // 1. Search Supabase database if configured
-    if (isSupabaseConfigured) {
+    // 1. Search via Server API route (bypasses RLS to get latest real Supabase status)
+    try {
+      const apiRes = await fetch('/api/admin/orders');
+      if (apiRes.ok) {
+        const apiData = await apiRes.json();
+        if (apiData.success && apiData.orders && apiData.orders.length > 0) {
+          const matched = apiData.orders.find((o: any) => {
+            const matchCode = o.order_code && o.order_code.toUpperCase().replace('#', '') === cleanCode;
+            const matchPhone = o.phone && o.phone.replace(/\s/g, '') === cleanPhone;
+            return matchCode || matchPhone;
+          });
+          if (matched) {
+            foundOrder = matched;
+          }
+        }
+      }
+    } catch (e) {}
+
+    // 2. Search Supabase database directly if configured
+    if (!foundOrder && isSupabaseConfigured) {
       try {
         const { data } = await supabase
           .from('orders')
