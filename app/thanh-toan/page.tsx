@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/components/providers/CartProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, isValidUUID } from '@/lib/utils';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 
@@ -128,10 +128,10 @@ export default function CheckoutPage() {
           console.error('LocalStorage order save error:', e);
         }
 
-        // 2. Direct client backup upsert to Supabase
+        // 2. Direct client backup upsert to Supabase (orders + order_items)
         if (isSupabaseConfigured) {
           try {
-            await supabase.from('orders').upsert({
+            const { error: ordErr } = await supabase.from('orders').upsert({
               id: orderId,
               order_code: orderCode,
               customer_name: formData.customer_name,
@@ -148,8 +148,27 @@ export default function CheckoutPage() {
               payment_method: formData.payment_method,
               status: 'pending',
             });
+
+            if (!ordErr) {
+              const orderItemsPayload = cart.map((item) => {
+                const rawPid = item.product.id;
+                return {
+                  order_id: orderId,
+                  product_id: (rawPid && isValidUUID(rawPid)) ? rawPid : null,
+                  product_name: item.product.name,
+                  product_image: item.product.image_url || item.product.images?.[0] || null,
+                  price: item.product.sale_price || item.product.price,
+                  quantity: item.quantity,
+                  total: (item.product.sale_price || item.product.price) * item.quantity,
+                };
+              });
+
+              await supabase.from('order_items').insert(orderItemsPayload);
+            } else {
+              console.warn('[Client Supabase Order Insert Warning]:', ordErr.message);
+            }
           } catch (syncErr) {
-            console.log('Client-side order sync completed');
+            console.error('Client-side order sync error:', syncErr);
           }
         }
 

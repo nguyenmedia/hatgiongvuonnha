@@ -9,6 +9,7 @@ import { formatPrice, formatDate, getOrderStatusLabel } from '@/lib/utils';
 import { Order, OrderStatus } from '@/types/database.types';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import { useToast } from '@/components/providers/ToastProvider';
+import { useRealtime } from '@/components/providers/RealtimeProvider';
 
 const INITIAL_MOCK_ORDERS: Order[] = [
   {
@@ -73,6 +74,7 @@ const INITIAL_MOCK_ORDERS: Order[] = [
 
 export default function AdminOrdersPage() {
   const { success, error, info } = useToast();
+  const { lastUpdated } = useRealtime();
   const [orders, setOrders] = useState<Order[]>(INITIAL_MOCK_ORDERS);
   const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -134,7 +136,7 @@ export default function AdminOrdersPage() {
       setOrders(mergedOrders);
     }
     loadOrders();
-  }, []);
+  }, [lastUpdated]);
 
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     if (isSupabaseConfigured) {

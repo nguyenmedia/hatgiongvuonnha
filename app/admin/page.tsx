@@ -11,8 +11,10 @@ import { INITIAL_PRODUCTS, DEFAULT_SETTINGS } from '@/lib/constants';
 import { formatPrice, formatDate, getOrderStatusLabel } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import { Order } from '@/types/database.types';
+import { useRealtime } from '@/components/providers/RealtimeProvider';
 
 export default function AdminDashboardPage() {
+  const { lastUpdated } = useRealtime();
   const [orders, setOrders] = useState<Order[]>([
     {
       id: 'ord-1',
@@ -124,7 +126,7 @@ export default function AdminDashboardPage() {
     }
 
     loadDashboardOrders();
-  }, []);
+  }, [lastUpdated]);
 
   const lowStockProducts = INITIAL_PRODUCTS.filter((p) => p.stock < 50);
 
