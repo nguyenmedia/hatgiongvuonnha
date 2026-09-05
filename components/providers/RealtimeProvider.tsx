@@ -1,24 +1,80 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import { useToast } from './ToastProvider';
 
 interface RealtimeContextType {
   lastUpdated: number;
   isRealtimeActive: boolean;
+  notifyChange: (type?: string, payload?: any) => void;
 }
 
 const RealtimeContext = createContext<RealtimeContextType>({
   lastUpdated: Date.now(),
   isRealtimeActive: false,
+  notifyChange: () => {},
 });
 
 export function RealtimeProvider({ children }: { children: ReactNode }) {
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
-  const [isRealtimeActive, setIsRealtimeActive] = useState<boolean>(false);
+  const [isRealtimeActive, setIsRealtimeActive] = useState<boolean>(true);
   const { info } = useToast();
 
+  const notifyChange = useCallback((type?: string, payload?: any) => {
+    const now = Date.now();
+    setLastUpdated(now);
+
+    // 1. Broadcast via BroadcastChannel API (cross-tab in browser)
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        const bc = new BroadcastChannel('hatgiong_sync_channel');
+        bc.postMessage({ type: type || 'change', payload, timestamp: now });
+        bc.close();
+      }
+    } catch (e) {}
+
+    // 2. Broadcast via localStorage storage event (supported in 100% browsers)
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('hatgiong_realtime_ping', JSON.stringify({ type, timestamp: now }));
+      }
+    } catch (e) {}
+  }, []);
+
+  // Listen for cross-tab messages
+  useEffect(() => {
+    // 1. BroadcastChannel listener
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        bc = new BroadcastChannel('hatgiong_sync_channel');
+        bc.onmessage = (event) => {
+          if (event.data?.timestamp) {
+            setLastUpdated(event.data.timestamp);
+          }
+        };
+      }
+    } catch (e) {}
+
+    // 2. Storage event listener (fires when other tabs update localStorage)
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'hatgiong_realtime_ping' && e.newValue) {
+        try {
+          const data = JSON.parse(e.newValue);
+          setLastUpdated(data.timestamp || Date.now());
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      if (bc) bc.close();
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
+  // Supabase Realtime Postgres Changes
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
@@ -29,7 +85,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
           'postgres_changes',
           { event: '*', schema: 'public', table: 'products' },
           (payload) => {
-            console.log('[Realtime] Product update received:', payload);
             setLastUpdated(Date.now());
             info('Dữ liệu sản phẩm vừa được đồng bộ tự động từ hệ thống.');
           }
@@ -38,7 +93,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
           'postgres_changes',
           { event: '*', schema: 'public', table: 'orders' },
           (payload) => {
-            console.log('[Realtime] Order update received:', payload);
             setLastUpdated(Date.now());
           }
         )
@@ -46,7 +100,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
           'postgres_changes',
           { event: '*', schema: 'public', table: 'settings' },
           (payload) => {
-            console.log('[Realtime] Settings update received:', payload);
             setLastUpdated(Date.now());
           }
         )
@@ -54,7 +107,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
           'postgres_changes',
           { event: '*', schema: 'public', table: 'categories' },
           (payload) => {
-            console.log('[Realtime] Categories update received:', payload);
             setLastUpdated(Date.now());
           }
         )
@@ -73,7 +125,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <RealtimeContext.Provider value={{ lastUpdated, isRealtimeActive }}>
+    <RealtimeContext.Provider value={{ lastUpdated, isRealtimeActive, notifyChange }}>
       {children}
     </RealtimeContext.Provider>
   );

@@ -174,6 +174,18 @@ export default function CheckoutPage() {
 
         toastSuccess('Đặt hàng thành công!');
         clearCart();
+        
+        // Save to my_placed_order_codes so Account page only displays this customer's own orders
+        try {
+          const myCodes: string[] = JSON.parse(localStorage.getItem('my_placed_order_codes') || '[]');
+          if (!myCodes.includes(orderCode)) {
+            myCodes.push(orderCode);
+            localStorage.setItem('my_placed_order_codes', JSON.stringify(myCodes));
+          }
+          localStorage.setItem('customer_phone', formData.phone);
+          localStorage.setItem('customer_name', formData.customer_name);
+        } catch (e) {}
+
         // Store temporary order info for success page
         sessionStorage.setItem('last_order', JSON.stringify({
           order_code: orderCode,

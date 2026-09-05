@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Search, Package, Clock, CheckCircle2, Truck, 
@@ -82,37 +82,61 @@ export default function OrderTrackingPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const handleSearchQuery = async (searchVal: string) => {
+  // Auto-refresh the current displayed order whenever lastUpdated changes (Admin updates status)
+  useEffect(() => {
+    if (order?.order_code) {
+      handleSearchQuery(order.order_code, true);
+    }
+  }, [lastUpdated]);
+
+  const handleSearchQuery = async (searchVal: string, silent: boolean = false) => {
     if (!searchVal.trim()) return;
 
-    setIsLoading(true);
-    setErrorMsg('');
-    setOrder(null);
+    if (!silent) {
+      setIsLoading(true);
+      setErrorMsg('');
+      setOrder(null);
+    }
 
     const cleanCode = searchVal.trim().toUpperCase().replace('#', '');
     const cleanPhone = searchVal.trim().replace(/\s/g, '');
 
     let foundOrder: Order | null = null;
 
-    // 1. Search via Server API route (bypasses RLS to get latest real Supabase status)
+    // 1. Primary: Dedicated Server Tracking API (bypasses RLS, overlays server status override)
     try {
-      const apiRes = await fetch('/api/admin/orders');
-      if (apiRes.ok) {
-        const apiData = await apiRes.json();
-        if (apiData.success && apiData.orders && apiData.orders.length > 0) {
-          const matched = apiData.orders.find((o: any) => {
-            const matchCode = o.order_code && o.order_code.toUpperCase().replace('#', '') === cleanCode;
-            const matchPhone = o.phone && o.phone.replace(/\s/g, '') === cleanPhone;
-            return matchCode || matchPhone;
-          });
-          if (matched) {
-            foundOrder = matched;
-          }
+      const trackRes = await fetch(`/api/orders/track?q=${encodeURIComponent(searchVal.trim())}`);
+      if (trackRes.ok) {
+        const trackData = await trackRes.json();
+        if (trackData.success && trackData.order) {
+          foundOrder = trackData.order;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Track API fetch error:', e);
+    }
 
-    // 2. Search Supabase database directly if configured
+    // 2. Secondary fallback: Admin Orders API
+    if (!foundOrder) {
+      try {
+        const apiRes = await fetch('/api/admin/orders');
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (apiData.success && apiData.orders && apiData.orders.length > 0) {
+            const matched = apiData.orders.find((o: any) => {
+              const matchCode = o.order_code && o.order_code.toUpperCase().replace('#', '') === cleanCode;
+              const matchPhone = o.phone && o.phone.replace(/\s/g, '') === cleanPhone;
+              return matchCode || matchPhone;
+            });
+            if (matched) {
+              foundOrder = matched;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 3. Fallback: Direct Supabase query
     if (!foundOrder && isSupabaseConfigured) {
       try {
         const { data } = await supabase
@@ -134,7 +158,7 @@ export default function OrderTrackingPage() {
       }
     }
 
-    // 2. Search LocalStorage placed orders
+    // 4. Fallback: LocalStorage placed orders
     if (!foundOrder) {
       try {
         const localOrders: Order[] = JSON.parse(localStorage.getItem('all_placed_orders') || '[]');
@@ -149,7 +173,7 @@ export default function OrderTrackingPage() {
       } catch (e) {}
     }
 
-    // 3. Search Mock tracking orders
+    // 5. Fallback: Mock tracking orders
     if (!foundOrder) {
       const matchedMock = MOCK_TRACKING_ORDERS.find((o) => {
         const matchCode = o.order_code && o.order_code.toUpperCase().replace('#', '') === cleanCode;
@@ -163,11 +187,13 @@ export default function OrderTrackingPage() {
 
     if (foundOrder) {
       setOrder(foundOrder);
-    } else {
-      setErrorMsg('Không tìm thấy đơn hàng nào với Mã đơn hoặc Số điện thoại này. Vui lòng kiểm tra lại!');
+      setErrorMsg('');
+    } else if (!silent) {
+      setErrorMsg(`Không tìm thấy đơn hàng "${searchVal}". Vui lòng kiểm tra lại mã đơn hoặc số điện thoại!`);
     }
-
-    setIsLoading(false);
+    if (!silent) {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

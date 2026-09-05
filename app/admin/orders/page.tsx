@@ -74,7 +74,7 @@ const INITIAL_MOCK_ORDERS: Order[] = [
 
 export default function AdminOrdersPage() {
   const { success, error, info } = useToast();
-  const { lastUpdated } = useRealtime();
+  const { lastUpdated, notifyChange } = useRealtime();
   const [orders, setOrders] = useState<Order[]>(INITIAL_MOCK_ORDERS);
   const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -148,19 +148,24 @@ export default function AdminOrdersPage() {
   }, [lastUpdated]);
 
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    const targetOrder = orders.find((o) => o.id === orderId || o.order_code === orderId);
+    const orderCode = targetOrder?.order_code || orderId;
+
     try {
       await fetch('/api/admin/orders', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderId, status: newStatus }),
+        body: JSON.stringify({ order_id: orderId, order_code: orderCode, status: newStatus }),
       });
     } catch (e) {}
 
     if (isSupabaseConfigured) {
-      await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
+      try {
+        await supabase
+          .from('orders')
+          .update({ status: newStatus })
+          .eq('id', orderId);
+      } catch (e) {}
     }
 
     // Update LocalStorage placed orders
@@ -176,6 +181,10 @@ export default function AdminOrdersPage() {
     if (activeOrder && activeOrder.id === orderId) {
       setActiveOrder((prev) => (prev ? { ...prev, status: newStatus } : null));
     }
+
+    // Broadcast realtime event across all open browser tabs (Admin & Customer tracking)
+    notifyChange('order_status_change', { orderId, orderCode, status: newStatus });
+
     success(`Đã cập nhật trạng thái đơn sang: ${getOrderStatusLabel(newStatus).label}`);
   };
 

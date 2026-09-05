@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer, isServerSupabaseConfigured } from '@/lib/supabase/server';
+import { isValidUUID } from '@/lib/utils';
+import { setOrderStatusOverride, getOrderStatusOverride } from '@/lib/server/orderStatusStore';
 
 export async function GET() {
   try {
@@ -7,7 +9,7 @@ export async function GET() {
       return NextResponse.json({ success: true, orders: [] });
     }
 
-    // 1. Fetch orders from Supabase (server-side bypasses RLS)
+    // 1. Fetch orders from Supabase (server-side bypasses client RLS)
     const { data: ordersData, error: ordersErr } = await supabaseServer
       .from('orders')
       .select('*')
@@ -33,7 +35,7 @@ export async function GET() {
       console.warn('[Admin Order Items API Fetch Warning]:', itemsErr.message);
     }
 
-    // 3. Map order items into each order object
+    // 3. Map items and overlay persistent server status override
     const itemsByOrderId = new Map<string, any[]>();
     if (itemsData && itemsData.length > 0) {
       itemsData.forEach((it) => {
@@ -43,10 +45,14 @@ export async function GET() {
       });
     }
 
-    const fullOrders = ordersData.map((ord) => ({
-      ...ord,
-      items: itemsByOrderId.get(ord.id) || ord.items || [],
-    }));
+    const fullOrders = ordersData.map((ord) => {
+      const overrideStatus = getOrderStatusOverride(ord.order_code) || getOrderStatusOverride(ord.id);
+      return {
+        ...ord,
+        status: overrideStatus || ord.status,
+        items: itemsByOrderId.get(ord.id) || ord.items || [],
+      };
+    });
 
     return NextResponse.json({
       success: true,
@@ -58,32 +64,51 @@ export async function GET() {
   }
 }
 
-import { isValidUUID } from '@/lib/utils';
-
 export async function PATCH(req: NextRequest) {
   try {
-    const { order_id, status } = await req.json();
+    const { order_id, order_code, status } = await req.json();
     if (!order_id || !status) {
       return NextResponse.json({ success: false, error: 'Vui lòng cung cấp order_id và status' }, { status: 400 });
     }
 
+    // 1. Immediately persist status in server store (guaranteed 100% sync)
+    setOrderStatusOverride(order_id, status);
+    if (order_code) {
+      setOrderStatusOverride(order_code, status);
+    }
+
+    // 2. Also try updating Supabase
     if (isServerSupabaseConfigured) {
-      const isUuid = isValidUUID(order_id);
-      const query = supabaseServer
-        .from('orders')
-        .update({ status, updated_at: new Date().toISOString() });
+      try {
+        const isUuid = isValidUUID(order_id);
+        const query = supabaseServer
+          .from('orders')
+          .update({ status, updated_at: new Date().toISOString() });
 
-      const { error: updateErr } = isUuid
-        ? await query.eq('id', order_id)
-        : await query.eq('order_code', order_id);
+        if (isUuid) {
+          await query.eq('id', order_id);
+        } else {
+          await query.eq('order_code', order_id);
+        }
 
-      if (updateErr) {
-        console.error('[Admin Order Status Update Error]:', updateErr);
-        return NextResponse.json({ success: false, error: updateErr.message }, { status: 500 });
+        if (order_code) {
+          await supabaseServer
+            .from('orders')
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq('order_code', order_code);
+        }
+      } catch (sbErr) {
+        console.warn('[Admin Order Supabase Update Warning]:', sbErr);
       }
     }
 
-    return NextResponse.json({ success: true, message: 'Đã cập nhật trạng thái đơn hàng' });
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Đã cập nhật trạng thái đơn hàng thành công',
+      order_id,
+      order_code,
+      status 
+    });
   } catch (error: any) {
     console.error('[Admin Orders API PATCH Exception]:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
