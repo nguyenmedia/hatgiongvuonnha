@@ -6,12 +6,13 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, Package, ShoppingCart, FolderTree, 
   Image as ImageIcon, Sliders, Settings, Tag, 
-  FileText, ExternalLink, Menu, X, Bell, User, Search,
+  FileText, ExternalLink, Menu, X, Bell, User, Users, Search,
   ChevronRight, Sparkles, ShieldCheck, HelpCircle, Lock, LogOut, Key
 } from 'lucide-react';
 
 const ADMIN_NAV = [
   { href: '/admin', label: 'Tổng quan Dashboard', icon: LayoutDashboard, badge: 'Live' },
+  { href: '/admin/users', label: 'Quản lý Người Dùng', icon: Users, badge: 'Supabase' },
   { href: '/admin/products', label: 'Quản lý Sản phẩm', icon: Package, badge: '8 SP' },
   { href: '/admin/orders', label: 'Quản lý Đơn hàng', icon: ShoppingCart, badge: 'HOT' },
   { href: '/admin/categories', label: 'Quản lý Danh mục', icon: FolderTree },
