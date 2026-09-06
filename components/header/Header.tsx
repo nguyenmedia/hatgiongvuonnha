@@ -169,21 +169,26 @@ export function Header() {
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* ── Logo (compact) ── */}
-            <Link href="/" className="flex items-center gap-2 flex-shrink-0 group" aria-label="Trang chủ">
-              <div className="w-9 h-9 rounded-xl overflow-hidden bg-[#F2FAF5] border border-[#D4EAD9] flex items-center justify-center flex-shrink-0">
+            {/* ── Logo (full brand identity) ── */}
+            <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group" aria-label="Trang chủ">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-gradient-to-tr from-emerald-50 to-amber-50 border border-[#D4EAD9] flex items-center justify-center flex-shrink-0 shadow-sm">
                 <img
                   src="/logo.png"
                   alt="Logo"
                   className="w-full h-full object-contain p-0.5 group-hover:scale-105 transition-transform duration-200"
                 />
               </div>
-              <div className="hidden xl:flex flex-col leading-none">
-                <span className="text-[14px] font-extrabold tracking-tight text-[#063B20] font-serif whitespace-nowrap">
-                  HẠT GIỐNG <span className="text-[#16A765]">NHÀ VƯỜN</span>
-                </span>
-                <span className="text-[9.5px] text-[#718078] font-medium mt-0.5 tracking-wide">
-                  Organic &amp; Garden Seeds
+              <div className="hidden sm:flex flex-col leading-none">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[15px] font-extrabold tracking-tight text-[#063B20] font-serif whitespace-nowrap">
+                    HẠT GIỐNG <span className="text-[#16A765]">NHÀ VƯỜN</span>
+                  </span>
+                  <span className="hidden lg:inline-flex items-center bg-gradient-to-r from-amber-400 to-amber-500 text-[#063B20] text-[8.5px] font-black uppercase px-1.5 py-0.5 rounded-full leading-none">
+                    F1 PRO
+                  </span>
+                </div>
+                <span className="text-[9.5px] text-[#718078] font-medium mt-0.5 tracking-wide whitespace-nowrap">
+                  ƯƠM MẦM HÔM NAY – RỰC RỠ NGÀY MAI 🌱
                 </span>
               </div>
             </Link>
@@ -357,32 +362,31 @@ export function Header() {
             {/* ── Spacer: push search + actions to right ── */}
             <div className="flex-1" />
 
-            {/* ── Search Bar (compact) ── */}
-            <div className="hidden lg:block relative w-[220px] xl:w-[280px] flex-shrink-0" ref={searchRef}>
+            {/* ── Search Bar (wide with full placeholder) ── */}
+            <div className="hidden lg:block relative flex-1 max-w-[520px] flex-shrink-0" ref={searchRef}>
               <form onSubmit={handleSearchSubmit} role="search">
                 <div
-                  className={`relative flex items-center rounded-xl border transition-all duration-200 ${
+                  className={`relative flex items-center rounded-2xl border transition-all duration-200 ${
                     isSearchFocused
-                      ? 'border-[#16A765] shadow-[0_0_0_3px_rgba(22,167,101,0.12)] bg-white w-[320px] xl:w-[380px]'
+                      ? 'border-[#16A765] shadow-[0_0_0_3px_rgba(22,167,101,0.12)] bg-white'
                       : 'border-[#D4EAD9] bg-[#F6FAF7] hover:border-[#A8CDB0]'
                   }`}
-                  style={{ transition: 'width 250ms ease, border-color 200ms ease, box-shadow 200ms ease' }}
                 >
-                  <Search className="w-3.5 h-3.5 text-[#A0AFA5] absolute left-3 pointer-events-none" />
+                  <Search className="w-4 h-4 text-[#A0AFA5] absolute left-3.5 pointer-events-none" />
                   <input
                     type="text"
-                    placeholder="Tìm hạt giống..."
+                    placeholder="Tìm hạt giống hoa, dạ yến thảo, rau củ, chậu, đất trồng..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
-                    className="w-full bg-transparent pl-9 pr-[72px] py-2 text-[13px] font-medium text-[#17231C] placeholder:text-[#B0BEB5] focus:outline-none rounded-xl"
+                    className="w-full bg-transparent pl-10 pr-[82px] py-2.5 text-[13px] font-medium text-[#17231C] placeholder:text-[#B0BEB5] focus:outline-none rounded-2xl"
                     aria-label="Tìm kiếm"
                   />
                   <button
                     type="submit"
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-[28px] px-3 bg-[#07552D] hover:bg-[#08763B] text-white text-[12px] font-semibold rounded-lg transition-colors whitespace-nowrap"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-[32px] px-4 bg-[#07552D] hover:bg-[#08763B] text-white text-[13px] font-semibold rounded-xl transition-colors whitespace-nowrap flex items-center gap-1"
                   >
-                    Tìm
+                    Tìm <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </form>
@@ -462,19 +466,22 @@ export function Header() {
               <button
                 onClick={() => setIsCartOpen(true)}
                 aria-label="Giỏ hàng"
-                className="relative flex items-center gap-2 px-3 h-[38px] bg-[#07552D] hover:bg-[#08763B] text-white rounded-xl transition-colors shadow-sm"
+                className="relative flex items-center gap-2.5 px-3 sm:px-4 h-[40px] bg-[#07552D] hover:bg-[#08763B] text-white rounded-xl transition-colors shadow-sm group"
               >
                 <div className="relative flex-shrink-0">
-                  <ShoppingBag className="w-[17px] h-[17px] text-[#F5B82E]" />
+                  <ShoppingBag className="w-[18px] h-[18px] text-[#F5B82E]" />
                   {totalItems > 0 && (
-                    <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] bg-[#F5B82E] text-[#063B20] text-[9px] font-extrabold rounded-full flex items-center justify-center px-0.5">
+                    <span className="absolute -top-1.5 -right-2 min-w-[17px] h-[17px] bg-[#F5B82E] text-[#063B20] text-[9.5px] font-extrabold rounded-full flex items-center justify-center px-0.5 shadow-sm">
                       {totalItems > 99 ? '99+' : totalItems}
                     </span>
                   )}
                 </div>
-                <span className="hidden sm:block text-[13px] font-semibold whitespace-nowrap">
-                  {totalItems > 0 ? `${totalItems} món` : 'Giỏ hàng'}
-                </span>
+                <div className="hidden sm:flex flex-col text-left leading-none">
+                  <span className="text-[9.5px] font-semibold text-emerald-300 uppercase tracking-widest">GIỎ HÀNG</span>
+                  <span className="text-[13px] font-bold text-white mt-0.5 whitespace-nowrap">
+                    {totalItems > 0 ? `${totalItems} món` : 'Trống'}
+                  </span>
+                </div>
               </button>
 
               {/* Account */}
