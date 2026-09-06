@@ -126,7 +126,7 @@ export default function AdminUsersPage() {
     phone: '',
     role: 'customer' as 'admin' | 'customer',
     address: '',
-    status: 'active' as 'active' | 'blocked',
+    status: 'active' as 'active' | 'blocked' | 'pending',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
