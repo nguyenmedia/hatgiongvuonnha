@@ -126,439 +126,441 @@ export function Header() {
     }
   };
 
+  // Keyboard support: Close mega menu on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsCategoryMenuOpen(false);
+        setIsSearching(false);
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Safe timer for hover transitions to prevent flickering
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnterMenu = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setIsCategoryMenuOpen(true);
+  };
+
+  const handleMouseLeaveMenu = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsCategoryMenuOpen(false);
+    }, 150);
+  };
+
   return (
-    <header className="w-full z-40 relative">
-      {/* 1. TOP ANNOUNCEMENT BAR (LUXURY GOLD & EMERALD) */}
-      <div className="bg-gradient-to-r from-forest-950 via-forest-900 to-forest-950 text-white text-xs py-2 px-3 sm:px-4 border-b border-forest-800/60">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-[11px] sm:text-xs">
+    <header className="site-header w-full">
+      {/* 1. TOP TIER (TẦNG 1: LOGO, SEARCH, WISHLIST, CART, ACCOUNT) */}
+      <div className="header-top-bar flex items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between gap-4 sm:gap-8">
           
-          {/* Left Feature Pill */}
-          <div className="flex items-center gap-2 text-emerald-300 font-medium truncate max-w-[62%] sm:max-w-none">
-            <span className="flex h-2 w-2 relative shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-            </span>
-            <span className="truncate">
-              Gieo hạt hôm nay – Nở hoa ngày mai <strong className="text-amber-300 hidden sm:inline">(Cam kết mầm &gt; 85% • Chuẩn F1)</strong>
-            </span>
+          {/* Left: Mobile Toggle & Brand Logo */}
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 text-slate-800 hover:text-emerald-700 rounded-xl hover:bg-slate-100 focus:outline-none transition"
+              aria-label="Mở menu danh mục"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+
+            <Link href="/" className="flex items-center gap-2.5 group" aria-label="Trang chủ Hạt Giống Nhà Vườn">
+              <img
+                src="/logo.png"
+                alt="Logo Hạt Giống Nhà Vườn"
+                className="h-10 sm:h-12 w-auto max-w-[120px] sm:max-w-[150px] object-contain transition-transform duration-200 group-hover:scale-105"
+              />
+              <div className="hidden sm:flex flex-col">
+                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-[#063B20] font-serif leading-none">
+                  HẠT GIỐNG <span className="text-[#16A765] font-sans font-bold">NHÀ VƯỜN</span>
+                </span>
+                <span className="text-[10px] text-[#718078] tracking-wide font-medium mt-0.5">
+                  Organic &amp; Garden Seeds
+                </span>
+              </div>
+            </Link>
           </div>
 
-          {/* Right Quick Contacts & Links */}
-          <div className="flex items-center gap-4 text-emerald-100 shrink-0 text-[11px]">
-            <a 
-              href={`tel:${settings.hotline.replace(/\s/g, '')}`} 
-              className="flex items-center gap-1.5 text-white hover:text-amber-300 transition font-extrabold group"
-            >
-              <div className="w-5 h-5 rounded-full bg-amber-400 text-forest-950 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Phone className="w-3 h-3 stroke-[2.5]" />
+          {/* Center: Search Bar (Desktop) */}
+          <div className="hidden md:flex flex-1 max-w-xl mx-4 relative" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} className="w-full relative" role="search">
+              <div className="relative flex items-center">
+                <Search className="w-4 h-4 text-[#718078] absolute left-4 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm hạt giống hoa, rau củ, củ quả F1..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.trim() && setIsSearching(true)}
+                  className="search-input-organic w-full pl-11 pr-24 py-2.5 text-xs sm:text-sm font-medium placeholder:text-[#718078]"
+                  aria-label="Tìm kiếm sản phẩm hạt giống"
+                />
+                <button
+                  type="submit"
+                  className="search-btn-organic absolute right-1.5 top-1.5 bottom-1.5 px-5 text-xs flex items-center gap-1.5"
+                  aria-label="Tìm kiếm"
+                >
+                  <span>Tìm</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <span><span className="hidden sm:inline">Hotline 24/7: </span>{settings.hotline}</span>
-            </a>
-            <span className="hidden sm:inline text-forest-700">|</span>
-            <Link href="/tra-cuu-don-hang" className="hover:text-amber-300 transition hidden sm:flex items-center gap-1 font-semibold">
-              <Truck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Tra cứu đơn hàng</span>
+            </form>
+
+            {/* Live Search Suggestion Box */}
+            {isSearching && searchResults.length > 0 && (
+              <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-[#E3ECE6] overflow-hidden z-50 animate-in fade-in">
+                <div className="p-3 bg-[#F2FAF5] text-xs font-bold text-[#063B20] border-b border-[#E3ECE6] flex justify-between items-center">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-[#F5B82E]" />
+                    Gợi ý hạt giống ({searchResults.length})
+                  </span>
+                  <span className="text-[#718078] font-normal text-[11px]">Nhấn Enter để tìm</span>
+                </div>
+                <div className="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                  {searchResults.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/san-pham/${item.slug}`}
+                      onClick={() => setIsSearching(false)}
+                      className="flex items-center gap-3 p-3 hover:bg-[#F2FAF5] transition group"
+                    >
+                      <div className="w-11 h-11 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                        <img
+                          src={item.images?.[0] || 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=800&q=80'}
+                          alt={item.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs font-bold text-slate-800 group-hover:text-[#08763B] truncate">
+                          {item.name}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs font-extrabold text-[#08763B]">
+                            {formatPrice(item.sale_price || item.price)}
+                          </span>
+                          {item.sale_price && (
+                            <span className="text-[10px] text-slate-400 line-through">
+                              {formatPrice(item.price)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#08763B] group-hover:translate-x-1 transition" />
+                    </Link>
+                  ))}
+                </div>
+                <div className="p-2.5 bg-slate-50 text-center border-t border-slate-100">
+                  <button
+                    onClick={handleSearchSubmit}
+                    className="text-xs font-bold text-[#08763B] hover:text-[#063B20] transition"
+                  >
+                    Xem tất cả kết quả cho "{searchQuery}" →
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Wishlist, Cart & Account */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            
+            {/* Wishlist */}
+            <Link
+              href="/yeu-thich"
+              className="p-2.5 text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition relative group"
+              title="Danh sách yêu thích"
+              aria-label="Danh sách yêu thích"
+            >
+              <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              {totalWishlist > 0 && (
+                <span className="absolute top-1 right-1 bg-[#F0445E] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {totalWishlist}
+                </span>
+              )}
+            </Link>
+
+            {/* Cart Button */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-2 bg-[#07552D] hover:bg-[#08763B] text-white rounded-xl shadow-xs hover:shadow transition active:scale-95 group"
+              aria-label="Giỏ hàng"
+            >
+              <div className="relative">
+                <ShoppingBag className="w-5 h-5 text-amber-300" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-[#F5B82E] text-[#063B20] text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-xs">
+                    {totalItems > 99 ? '99+' : totalItems}
+                  </span>
+                )}
+              </div>
+              <div className="hidden sm:flex flex-col text-left">
+                <span className="text-[10px] uppercase font-bold text-emerald-200 leading-none">Giỏ hàng</span>
+                <span className="text-xs font-bold text-white mt-0.5">
+                  {totalItems > 0 ? `${totalItems} món` : 'Trống'}
+                </span>
+              </div>
+            </button>
+
+            {/* Account */}
+            <Link
+              href="/tai-khoan"
+              className="hidden sm:flex items-center justify-center w-9 h-9 text-slate-700 hover:text-[#08763B] bg-slate-50 hover:bg-[#F2FAF5] rounded-xl transition border border-[#E3ECE6]"
+              title="Tài khoản cá nhân"
+              aria-label="Tài khoản cá nhân"
+            >
+              <User className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </div>
 
-      {/* 2. MAIN HEADER (NAVBAR WITH MODERN BLUR) */}
-      <div className={`transition-all duration-300 ${isScrolled ? 'sticky top-0 shadow-lg glass-nav' : 'bg-white border-b border-emerald-950/5'}`}>
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20 gap-3 sm:gap-6">
-            
-            {/* Left: Mobile Menu Button & Logo */}
-            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-forest-900 hover:text-forest-700 rounded-2xl hover:bg-forest-50 focus:outline-none transition active:scale-95"
-                aria-label="Menu"
-              >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
+      {/* Mobile Search Bar Row (Directly below Header on Mobile) */}
+      <div className="md:hidden px-4 py-2.5 bg-[#f6faf7] border-b border-[#E3ECE6]">
+        <form onSubmit={handleSearchSubmit} className="relative" role="search">
+          <input
+            type="text"
+            placeholder="Tìm kiếm hạt giống hoa, rau củ..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input-organic w-full pl-9 pr-16 py-2 text-xs font-medium"
+            aria-label="Tìm kiếm sản phẩm"
+          />
+          <Search className="w-3.5 h-3.5 text-[#718078] absolute left-3 top-2.5" />
+          <button
+            type="submit"
+            className="search-btn-organic absolute right-1 top-1 bottom-1 px-3 text-[11px]"
+            aria-label="Tìm"
+          >
+            Tìm
+          </button>
+        </form>
+      </div>
 
-              <Link href="/" className="flex items-center gap-3 group">
-                <div className="relative overflow-hidden rounded-2xl p-1 bg-gradient-to-tr from-emerald-100 to-amber-50 border border-emerald-200/60 shadow-2xs group-hover:shadow-md transition-shadow">
-                  <img
-                    src="/logo.png"
-                    alt="Logo Hạt Giống Nhà Vườn"
-                    className="h-10 sm:h-12 w-auto max-w-[110px] sm:max-w-[150px] object-contain group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-extrabold text-base sm:text-2xl tracking-tight text-forest-950 font-serif leading-none">
-                      HẠT GIỐNG <span className="text-forest-600 font-sans font-bold">NHÀ VƯỜN</span>
-                    </span>
-                    <span className="hidden sm:inline-block bg-gradient-to-r from-amber-400 to-amber-500 text-forest-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-2xs">
-                      F1 PRO
-                    </span>
-                  </div>
-                  <span className="text-[8px] sm:text-[10px] text-forest-700 tracking-wider uppercase font-bold mt-0.5 hidden xs:block sm:block">
-                    Ươm mầm hôm nay – Rực rỡ ngày mai 🌱
-                  </span>
-                </div>
-              </Link>
-            </div>
+      {/* 2. MAIN NAVIGATION (TẦNG 2: NAVIGATION & MEGA MENU) */}
+      <nav className="hidden lg:block main-nav-container border-b border-[#E3ECE6] bg-white relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+          
+          {/* Left: Mega Menu Trigger for "Danh mục hạt giống" */}
+          <div 
+            className="relative" 
+            ref={categoryMenuRef}
+            onMouseEnter={handleMouseEnterMenu}
+            onMouseLeave={handleMouseLeaveMenu}
+          >
+            <button
+              onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+              className="btn-category-cta flex items-center gap-2"
+              aria-expanded={isCategoryMenuOpen}
+              aria-haspopup="true"
+              aria-label="Danh mục hạt giống"
+            >
+              <LayoutGrid className="w-4 h-4 text-[#F5B82E]" />
+              <span>Danh mục hạt giống</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180 text-white' : 'text-emerald-200'}`} />
+            </button>
 
-            {/* Middle: Desktop Search Bar (Smart Live Suggestion) */}
-            <div className="hidden md:flex flex-1 max-w-xl mx-2 relative" ref={searchRef}>
-              <form onSubmit={handleSearchSubmit} className="w-full relative group">
-                <div className="relative flex items-center">
-                  <input
-                    type="text"
-                    placeholder="Tìm hạt giống hoa, dạ yến thảo, rau củ, chậu, đất trồng..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => searchQuery.trim() && setIsSearching(true)}
-                    className="w-full pl-11 pr-28 py-3 rounded-2xl border border-emerald-900/15 bg-forest-50/50 group-hover:bg-forest-50/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent text-xs sm:text-sm transition-all shadow-inner font-medium text-slate-900 placeholder:text-slate-400"
-                  />
-                  <Search className="w-4 h-4 text-forest-700 absolute left-4 pointer-events-none" />
-                  <button
-                    type="submit"
-                    className="absolute right-1.5 top-1.5 bottom-1.5 px-5 bg-gradient-to-r from-forest-800 to-forest-900 hover:from-forest-900 hover:to-forest-950 text-white text-xs font-extrabold rounded-xl transition shadow-md active:scale-95 flex items-center gap-1.5"
-                  >
-                    <span>Tìm</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </form>
-
-              {/* Live Search Suggestion Box */}
-              {isSearching && searchResults.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-3xl shadow-2xl border border-emerald-900/10 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="p-3.5 bg-gradient-to-r from-forest-50 to-emerald-50 text-xs font-extrabold text-forest-900 border-b border-emerald-900/10 flex justify-between items-center">
-                    <span className="flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-amber-500" />
-                      Gợi ý hạt giống hàng đầu ({searchResults.length})
-                    </span>
-                    <span className="text-slate-500 font-normal text-[11px]">Nhấn Enter để xem tất cả</span>
-                  </div>
-                  <div className="divide-y divide-slate-100 max-h-80 overflow-y-auto">
-                    {searchResults.map((item) => (
-                      <Link
-                        key={item.id}
-                        href={`/san-pham/${item.slug}`}
-                        onClick={() => setIsSearching(false)}
-                        className="flex items-center gap-3.5 p-3 hover:bg-forest-50/70 transition group"
-                      >
-                        <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200 group-hover:scale-105 transition-transform">
-                          <img
-                            src={item.images?.[0] || 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=800&q=80'}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-forest-700 truncate">
-                            {item.name}
-                          </h4>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs font-extrabold text-forest-800">
-                              {formatPrice(item.sale_price || item.price)}
-                            </span>
-                            {item.sale_price && (
-                              <span className="text-[10px] text-slate-400 line-through">
-                                {formatPrice(item.price)}
-                              </span>
-                            )}
-                            {item.germination_rate && (
-                              <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-bold">
-                                Mầm {item.germination_rate}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <span className="text-xs text-forest-600 font-bold group-hover:translate-x-1 transition">
-                          →
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="p-2.5 bg-slate-50 text-center border-t border-slate-100">
-                    <button
-                      onClick={handleSearchSubmit}
-                      className="text-xs font-extrabold text-forest-800 hover:text-forest-950 transition"
-                    >
-                      Xem toàn bộ kết quả cho "{searchQuery}" →
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Right: Action Buttons (Wishlist, Cart, Account) */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              
-              {/* Wishlist Button */}
-              <Link
-                href="/yeu-thich"
-                className="p-2.5 text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition relative group"
-                title="Sản phẩm yêu thích"
-              >
-                <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                {totalWishlist > 0 && (
-                  <span className="absolute top-1 right-1 bg-rose-500 text-white text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-md animate-pulse">
-                    {totalWishlist}
-                  </span>
-                )}
-              </Link>
-
-              {/* Cart Drawer Trigger */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-gradient-to-r from-forest-800 to-forest-900 hover:from-forest-900 hover:to-forest-950 text-white rounded-2xl shadow-md hover:shadow-lg transition-all active:scale-95 group"
-                aria-label="Giỏ hàng"
-              >
-                <div className="relative">
-                  <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform text-amber-300" />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2.5 bg-gradient-to-r from-amber-400 to-amber-500 text-forest-950 text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-md animate-bounce">
-                      {totalItems > 99 ? '99+' : totalItems}
-                    </span>
-                  )}
-                </div>
-                <div className="hidden sm:flex flex-col text-left">
-                  <span className="text-[10px] uppercase font-bold text-emerald-200 leading-none">Giỏ hàng</span>
-                  <span className="text-xs font-extrabold text-white mt-0.5">
-                    {totalItems > 0 ? `${totalItems} món` : 'Trống'}
-                  </span>
-                </div>
-              </button>
-
-              {/* User Account */}
-              <Link
-                href="/tai-khoan"
-                className="hidden sm:flex items-center justify-center w-10 h-10 text-forest-800 bg-forest-100/70 hover:bg-forest-200/80 rounded-2xl transition border border-forest-200/60 shadow-2xs"
-                title="Tài khoản cá nhân"
-              >
-                <User className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Mobile Search Bar Row */}
-          <div className="md:hidden pb-3 pt-1">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <input
-                type="text"
-                placeholder="Tìm hạt giống hoa, rau củ quả F1..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-20 py-2.5 text-xs border border-emerald-900/10 rounded-2xl bg-forest-50/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600 shadow-inner font-medium"
-              />
-              <Search className="w-4 h-4 text-forest-700 absolute left-3.5 top-3" />
-              <button
-                type="submit"
-                className="absolute right-1 top-1 bottom-1 px-3 bg-forest-800 text-white text-[11px] font-extrabold rounded-xl"
-              >
-                Tìm
-              </button>
-            </form>
-          </div>
-        </div>
-
-        {/* 3. DESKTOP MEGA MENU NAVIGATION BAR */}
-        <nav className="hidden lg:block border-t border-slate-100 bg-white/95 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-12 text-xs sm:text-sm font-bold text-slate-800">
-              
-              {/* Left: Mega Category Dropdown Menu */}
-              <div className="relative" ref={categoryMenuRef}>
-                <button
-                  onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-                  onMouseEnter={() => setIsCategoryMenuOpen(true)}
-                  className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-black transition-all duration-200 shadow-2xs ${
-                    isCategoryMenuOpen 
-                      ? 'bg-gradient-to-r from-forest-900 to-forest-950 text-white shadow-md' 
-                      : 'bg-gradient-to-r from-forest-800 to-forest-900 hover:from-forest-900 hover:to-forest-950 text-white'
-                  }`}
+            {/* 3. MEGA MENU DROPDOWN PANEL */}
+            {isCategoryMenuOpen && (
+              <div className="mega-menu-wrapper">
+                <div 
+                  className="mega-menu-panel grid grid-cols-12 gap-5"
+                  role="menu"
+                  aria-label="Danh mục hạt giống chi tiết"
                 >
-                  <LayoutGrid className="w-4 h-4 text-amber-300" />
-                  <span>DANH MỤC HẠT GIỐNG</span>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isCategoryMenuOpen ? 'rotate-180 text-amber-300' : 'text-emerald-200'}`} />
-                </button>
+                  {/* Left Column: Vertical Category Navigation */}
+                  <div className="col-span-7 space-y-1 pr-3 border-r border-[#E3ECE6]">
+                    <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#08763B] bg-[#F2FAF5] rounded-lg mb-2 flex items-center justify-between">
+                      <span>Các nhóm hạt giống</span>
+                      <span className="text-[10px] text-[#16A765] font-semibold">Tỷ lệ nảy mầm &gt; 85%</span>
+                    </div>
 
-                {/* Mega Dropdown Panel (Multi-Column Layout) */}
-                {isCategoryMenuOpen && (
-                  <div 
-                    onMouseLeave={() => setIsCategoryMenuOpen(false)}
-                    className="absolute left-0 top-full mt-2 w-[680px] bg-white rounded-3xl shadow-2xl border border-emerald-950/10 p-5 z-50 animate-in fade-in slide-in-from-top-3 grid grid-cols-12 gap-5"
-                  >
-                    {/* Left Column: Categories List */}
-                    <div className="col-span-7 space-y-1 pr-2 border-r border-slate-100 max-h-[380px] overflow-y-auto">
-                      <div className="px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-forest-800 bg-forest-50 rounded-xl mb-2 flex items-center justify-between">
-                        <span>Chủng loại ({categories.length})</span>
-                        <span className="text-[10px] text-emerald-700 font-extrabold">Chuẩn F1 100%</span>
-                      </div>
-
+                    <div className="space-y-0.5 max-h-[360px] overflow-y-auto pr-1">
                       {categories.map((cat) => (
                         <Link
                           key={cat.id}
                           href={`/danh-muc/${cat.slug}`}
                           onClick={() => setIsCategoryMenuOpen(false)}
-                          className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-forest-50/90 group transition"
+                          className="category-vertical-item group"
+                          role="menuitem"
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <span className="w-9 h-9 rounded-xl bg-slate-50 group-hover:bg-emerald-100 text-slate-700 group-hover:text-forest-900 flex items-center justify-center text-base transition shrink-0 border border-slate-100">
+                            <span className="cat-icon-box">
                               {cat.icon || '🌱'}
                             </span>
                             <div className="min-w-0">
-                              <h4 className="text-xs font-bold text-slate-900 group-hover:text-forest-800 truncate">
+                              <h4 className="cat-title truncate">
                                 {cat.name}
                               </h4>
-                              <p className="text-[10px] text-slate-400 group-hover:text-slate-500 truncate">
-                                {cat.description || `Hạt giống ${cat.name} năng suất cao`}
+                              <p className="cat-desc truncate">
+                                {cat.description || `Hạt giống ${cat.name} F1 năng suất cao`}
                               </p>
                             </div>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-forest-700 group-hover:translate-x-1 transition" />
+                          <ChevronRight className="cat-chevron" />
                         </Link>
                       ))}
                     </div>
+                  </div>
 
-                    {/* Right Column: Featured Banner & Fast Links */}
-                    <div className="col-span-5 flex flex-col justify-between">
-                      <div className="rounded-2xl bg-gradient-to-br from-forest-900 via-forest-950 to-emerald-950 text-white p-4 relative overflow-hidden shadow-md">
-                        <div className="relative z-10">
-                          <span className="text-[10px] font-black uppercase text-amber-300 bg-forest-900/80 px-2.5 py-0.5 rounded-full border border-amber-400/30 inline-block mb-1.5">
-                            🔥 Hot Nhất Mùa Này
-                          </span>
-                          <h4 className="text-sm font-extrabold font-serif leading-tight">
-                            Hạt Giống Hoa Hướng Dương Lùn F1
-                          </h4>
-                          <p className="text-[10px] text-emerald-200 mt-1">
-                            Bông to, nở sau 50 ngày, dễ trồng ban công.
-                          </p>
-                          <Link
-                            href="/san-pham/hat-giong-hoa-huong-duong-lun-f1"
-                            onClick={() => setIsCategoryMenuOpen(false)}
-                            className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-forest-600 hover:from-emerald-600 hover:to-forest-700 text-white rounded-xl shadow transition"
-                          >
-                            <span>Xem ngay</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </Link>
+                  {/* Right Column: Featured Category / Hot Product Card */}
+                  <div className="col-span-5 flex flex-col justify-between">
+                    <div className="mega-featured-card h-full min-h-[200px]">
+                      <div>
+                        <div className="mega-featured-badge">
+                          <span>🌻 HOT NHẤT MÙA NÀY</span>
                         </div>
+                        <h4 className="text-base font-bold font-serif mt-2.5 leading-snug text-white">
+                          Hạt Giống Hoa Hướng Dương F1
+                        </h4>
+                        <p className="text-xs text-emerald-100/90 mt-1.5 font-normal leading-relaxed">
+                          Bông to, nở sau 50 ngày, dễ trồng ban công và sân vườn.
+                        </p>
                       </div>
 
-                      <div className="pt-3 border-t border-slate-100 space-y-1">
+                      <div className="mt-4">
                         <Link
-                          href="/san-pham"
+                          href="/san-pham/hat-giong-hoa-huong-duong-lun-f1"
                           onClick={() => setIsCategoryMenuOpen(false)}
-                          className="flex items-center justify-between p-2 rounded-xl text-xs font-extrabold text-forest-800 hover:bg-forest-50 transition"
+                          className="mega-featured-cta"
                         >
-                          <span>🌱 Xem tất cả hạt giống</span>
-                          <span>→</span>
-                        </Link>
-                        <Link
-                          href="/blog"
-                          onClick={() => setIsCategoryMenuOpen(false)}
-                          className="flex items-center justify-between p-2 rounded-xl text-xs font-bold text-slate-600 hover:text-forest-800 hover:bg-forest-50 transition"
-                        >
-                          <span>📖 Cẩm nang gieo trồng</span>
-                          <span>→</span>
+                          <span>Xem ngay</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                       </div>
                     </div>
+
+                    {/* Bottom Quick Links */}
+                    <div className="pt-3 mt-3 border-t border-[#E3ECE6] space-y-1">
+                      <Link
+                        href="/san-pham"
+                        onClick={() => setIsCategoryMenuOpen(false)}
+                        className="flex items-center justify-between px-2 py-1.5 rounded-lg text-xs font-semibold text-[#08763B] hover:bg-[#F2FAF5] transition"
+                      >
+                        <span>Xem tất cả hạt giống</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                      <Link
+                        href="/blog"
+                        onClick={() => setIsCategoryMenuOpen(false)}
+                        className="flex items-center justify-between px-2 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-[#08763B] hover:bg-[#F2FAF5] transition"
+                      >
+                        <span>Cẩm nang gieo trồng</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
-
-              {/* Right Horizontal Quick Links */}
-              <ul className="flex items-center gap-1.5 font-bold text-slate-700">
-                <li>
-                  <Link
-                    href="/"
-                    className={`px-3.5 py-2 rounded-xl transition text-xs font-extrabold flex items-center gap-1.5 ${
-                      pathname === '/' 
-                        ? 'bg-forest-100/70 text-forest-900 font-black' 
-                        : 'hover:text-forest-800 hover:bg-slate-50'
-                    }`}
-                  >
-                    <span>Trang chủ</span>
-                  </Link>
-                </li>
-
-                {categories.slice(0, 4).map((cat) => (
-                  <li key={cat.id}>
-                    <Link
-                      href={`/danh-muc/${cat.slug}`}
-                      className={`px-3 py-2 rounded-xl transition text-xs font-bold flex items-center gap-1.5 ${
-                        pathname === `/danh-muc/${cat.slug}`
-                          ? 'bg-forest-100/70 text-forest-900 font-black'
-                          : 'hover:text-forest-800 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="text-sm">{cat.icon || '🌱'}</span>
-                      <span>{cat.name}</span>
-                    </Link>
-                  </li>
-                ))}
-
-                <li>
-                  <Link
-                    href="/san-pham?sale=true"
-                    className="px-3.5 py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-black transition text-xs flex items-center gap-1.5 shadow-2xs"
-                  >
-                    <Flame className="w-3.5 h-3.5 text-rose-500 animate-bounce" />
-                    <span>Khuyến mãi</span>
-                    <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase">
-                      HOT
-                    </span>
-                  </Link>
-                </li>
-
-                <li>
-                  <Link
-                    href="/blog"
-                    className={`px-3 py-2 rounded-xl transition text-xs font-bold flex items-center gap-1 ${
-                      pathname === '/blog'
-                        ? 'bg-forest-100/70 text-forest-900 font-black'
-                        : 'hover:text-forest-800 hover:bg-slate-50'
-                    }`}
-                  >
-                    <span>Cẩm nang</span>
-                  </Link>
-                </li>
-
-                <li>
-                  <Link
-                    href="/lien-he"
-                    className={`px-3 py-2 rounded-xl transition text-xs font-bold flex items-center gap-1 ${
-                      pathname === '/lien-he'
-                        ? 'bg-forest-100/70 text-forest-900 font-black'
-                        : 'hover:text-forest-800 hover:bg-slate-50'
-                    }`}
-                  >
-                    <span>Liên hệ</span>
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            )}
           </div>
-        </nav>
-      </div>
 
-      {/* 4. MOBILE DRAWER SLIDEOUT MENU (APP-LIKE EXPERIENCE) */}
+          {/* Right: Main Navigation Links */}
+          <ul className="flex items-center gap-1 font-semibold text-slate-700">
+            <li>
+              <Link
+                href="/"
+                className={`nav-link-item ${pathname === '/' ? 'active' : ''}`}
+              >
+                <span>Trang chủ</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                href="/danh-muc/hat-giong-hoa"
+                className={`nav-link-item ${pathname === '/danh-muc/hat-giong-hoa' ? 'active' : ''}`}
+              >
+                <span>Hạt Giống Hoa</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                href="/danh-muc/hat-giong-rau-cu"
+                className={`nav-link-item ${pathname === '/danh-muc/hat-giong-rau-cu' ? 'active' : ''}`}
+              >
+                <span>Hạt Giống Rau Củ</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                href="/danh-muc/hat-giong-cay-canh"
+                className={`nav-link-item ${pathname === '/danh-muc/hat-giong-cay-canh' ? 'active' : ''}`}
+              >
+                <span>Hạt Giống Cây Cảnh</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                href="/danh-muc/hat-giong-cay-an-qua"
+                className={`nav-link-item ${pathname === '/danh-muc/hat-giong-cay-an-qua' ? 'active' : ''}`}
+              >
+                <span>Hạt Giống Cây Ăn Quả</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                href="/san-pham?sale=true"
+                className="nav-link-item text-[#F0445E] hover:text-[#d32f48] hover:bg-rose-50"
+              >
+                <Flame className="w-3.5 h-3.5 text-[#F0445E]" />
+                <span>Khuyến mãi</span>
+                <span className="bg-[#F0445E] text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full">
+                  HOT
+                </span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                href="/blog"
+                className={`nav-link-item ${pathname === '/blog' ? 'active' : ''}`}
+              >
+                <span>Cẩm nang</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                href="/lien-he"
+                className={`nav-link-item ${pathname === '/lien-he' ? 'active' : ''}`}
+              >
+                <span>Liên hệ</span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      {/* 4. MOBILE ACCORDION / OFF-CANVAS DRAWER */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-forest-950/60 backdrop-blur-sm animate-in fade-in duration-200 flex">
-          <div className="w-4/5 max-w-sm bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-300">
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex">
+          <div className="w-4/5 max-w-sm bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto">
             
             {/* Drawer Header */}
             <div>
-              <div className="p-4 bg-gradient-to-r from-forest-900 to-forest-950 text-white flex items-center justify-between">
+              <div className="p-4 bg-[#07552D] text-white flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <img src="/logo.png" alt="Logo" className="h-9 w-auto bg-white rounded-xl p-0.5" />
+                  <img src="/logo.png" alt="Logo" className="h-8 w-auto bg-white rounded-lg p-0.5" />
                   <div>
-                    <div className="font-serif font-extrabold text-sm">HẠT GIỐNG NHÀ VƯỜN</div>
-                    <div className="text-[9px] text-emerald-300">Chuẩn F1 • Tỷ lệ nảy mầm &gt; 85%</div>
+                    <div className="font-serif font-bold text-sm">HẠT GIỐNG NHÀ VƯỜN</div>
+                    <div className="text-[10px] text-emerald-200">Organic &amp; Garden Seeds</div>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1.5 text-white hover:bg-white/10 rounded-xl"
-                  aria-label="Đóng"
+                  className="p-1.5 text-white hover:bg-white/10 rounded-lg"
+                  aria-label="Đóng menu"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -572,47 +574,47 @@ export function Header() {
                   <Link
                     href="/"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between p-2.5 rounded-xl font-bold text-xs text-slate-800 hover:bg-forest-50"
+                    className="flex items-center justify-between p-2.5 rounded-xl font-semibold text-xs text-slate-800 hover:bg-[#F2FAF5]"
                   >
-                    <span>🏡 Trang chủ</span>
-                    <ChevronRight className="w-4 h-4 text-slate-300" />
+                    <span>Trang chủ</span>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   </Link>
                   <Link
                     href="/san-pham"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between p-2.5 rounded-xl font-bold text-xs text-slate-800 hover:bg-forest-50"
+                    className="flex items-center justify-between p-2.5 rounded-xl font-semibold text-xs text-slate-800 hover:bg-[#F2FAF5]"
                   >
-                    <span>🌱 Tất cả sản phẩm hạt giống</span>
-                    <ChevronRight className="w-4 h-4 text-slate-300" />
+                    <span>Tất cả sản phẩm hạt giống</span>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   </Link>
                   <Link
                     href="/san-pham?sale=true"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between p-2.5 rounded-xl font-black text-xs text-rose-600 hover:bg-rose-50"
+                    className="flex items-center justify-between p-2.5 rounded-xl font-bold text-xs text-[#F0445E] hover:bg-rose-50"
                   >
                     <span className="flex items-center gap-1.5">
-                      <Flame className="w-4 h-4 text-rose-500" />
-                      Ưu đãi Flash Sale Giảm Giá
+                      <Flame className="w-4 h-4 text-[#F0445E]" />
+                      Ưu đãi Khuyến mãi
                     </span>
-                    <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black">HOT</span>
+                    <span className="bg-[#F0445E] text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">HOT</span>
                   </Link>
                 </div>
 
-                {/* Categories Accordion/List */}
+                {/* Categories */}
                 <div>
-                  <div className="text-[11px] font-black uppercase text-slate-400 px-2 mb-2">
-                    Danh mục nổi bật
+                  <div className="text-[11px] font-bold uppercase text-slate-400 px-2 mb-2">
+                    Danh mục hạt giống
                   </div>
-                  <div className="space-y-1 pl-1">
+                  <div className="space-y-1">
                     {categories.map((cat) => (
                       <Link
                         key={cat.id}
                         href={`/danh-muc/${cat.slug}`}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-forest-50"
+                        className="flex items-center justify-between p-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-[#F2FAF5]"
                       >
-                        <div className="flex items-center gap-2">
-                          <span>{cat.icon || '🌱'}</span>
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-base">{cat.icon || '🌱'}</span>
                           <span>{cat.name}</span>
                         </div>
                         <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -621,35 +623,35 @@ export function Header() {
                   </div>
                 </div>
 
-                {/* Information Links */}
+                {/* Additional Pages */}
                 <div>
-                  <div className="text-[11px] font-black uppercase text-slate-400 px-2 mb-2">
-                    Hỗ trợ & Hướng dẫn
+                  <div className="text-[11px] font-bold uppercase text-slate-400 px-2 mb-2">
+                    Thông tin &amp; Hỗ trợ
                   </div>
-                  <div className="space-y-1 pl-1 text-xs font-semibold text-slate-700">
-                    <Link
-                      href="/tra-cuu-don-hang"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2 p-2 rounded-xl hover:bg-forest-50"
-                    >
-                      <Truck className="w-4 h-4 text-forest-700" />
-                      <span>Tra cứu trạng thái đơn hàng</span>
-                    </Link>
+                  <div className="space-y-1 text-xs font-medium text-slate-700">
                     <Link
                       href="/blog"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2 p-2 rounded-xl hover:bg-forest-50"
+                      className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F2FAF5]"
                     >
-                      <Sprout className="w-4 h-4 text-forest-700" />
-                      <span>Cẩm nang kỹ thuật ươm mầm</span>
+                      <Sprout className="w-4 h-4 text-[#08763B]" />
+                      <span>Cẩm nang gieo trồng</span>
+                    </Link>
+                    <Link
+                      href="/tra-cuu-don-hang"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F2FAF5]"
+                    >
+                      <Truck className="w-4 h-4 text-[#08763B]" />
+                      <span>Tra cứu đơn hàng</span>
                     </Link>
                     <Link
                       href="/lien-he"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2 p-2 rounded-xl hover:bg-forest-50"
+                      className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F2FAF5]"
                     >
-                      <Phone className="w-4 h-4 text-forest-700" />
-                      <span>Liên hệ & Địa chỉ vườn ươm</span>
+                      <Phone className="w-4 h-4 text-[#08763B]" />
+                      <span>Liên hệ nhà vườn</span>
                     </Link>
                   </div>
                 </div>
@@ -658,24 +660,17 @@ export function Header() {
             </div>
 
             {/* Mobile Footer Contact */}
-            <div className="p-4 bg-gradient-to-b from-slate-50 to-emerald-50/50 border-t border-slate-200/80 text-xs text-slate-600 space-y-2">
-              <div className="font-extrabold text-slate-900 text-[11px] uppercase tracking-wider">Hỗ Trợ Khách Hàng 24/7</div>
-              
+            <div className="p-4 bg-slate-50 border-t border-slate-200 text-xs text-slate-600 space-y-2">
               <a 
                 href={`tel:${settings.hotline.replace(/\s/g, '')}`} 
-                className="flex items-center justify-between p-2.5 rounded-xl bg-forest-800 text-white font-extrabold shadow"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-[#07552D] text-white font-bold"
               >
                 <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-amber-300 animate-pulse" />
+                  <Phone className="w-4 h-4 text-[#F5B82E]" />
                   <span>Hotline: {settings.hotline}</span>
                 </div>
-                <span className="text-[10px] bg-forest-900 px-2 py-0.5 rounded-md text-amber-300 font-black">GỌI NGAY</span>
+                <span className="text-[10px] bg-[#063B20] px-2 py-0.5 rounded text-amber-300">GỌI</span>
               </a>
-
-              <div className="text-[11px] text-slate-500 pt-1 flex items-start gap-1">
-                <MapPin className="w-3.5 h-3.5 text-forest-700 shrink-0 mt-0.5" />
-                <span>{settings.address}</span>
-              </div>
             </div>
           </div>
           <div className="flex-1" onClick={() => setIsMobileMenuOpen(false)} />
@@ -684,3 +679,4 @@ export function Header() {
     </header>
   );
 }
+

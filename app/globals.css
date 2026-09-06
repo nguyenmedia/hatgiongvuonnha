@@ -145,3 +145,258 @@ button, input, select, textarea {
 .pulse-green {
   animation: greenPulse 2s infinite;
 }
+
+/* ==========================================================================
+   ORGANIC GARDEN STORE: HEADER & MEGA MENU DESIGN SYSTEM
+   ========================================================================== */
+:root {
+  --green-950: #063B20;
+  --green-900: #07552D;
+  --green-800: #08763B;
+  --green-600: #16A765;
+  --green-500: #22C477;
+  --green-50: #F2FAF5;
+
+  --cream: #FBFDF9;
+  --white: #FFFFFF;
+
+  --text-main: #17231C;
+  --text-muted: #718078;
+  --nav-border: #E3ECE6;
+
+  --accent-yellow: #F5B82E;
+  --accent-red: #F0445E;
+}
+
+/* 1. Header Containers */
+.site-header {
+  background-color: var(--white);
+  border-bottom: 1px solid var(--nav-border);
+  position: relative;
+  z-index: 40;
+}
+
+.header-top-bar {
+  height: 76px;
+  border-bottom: 1px solid rgba(227, 236, 230, 0.6);
+}
+
+/* 2. Modern Search Bar */
+.search-input-organic {
+  background-color: #f6faf7;
+  border: 1.5px solid #dce9df;
+  border-radius: 16px;
+  color: var(--text-main);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-input-organic:focus {
+  background-color: #ffffff;
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 4px rgba(22, 167, 101, 0.12);
+  outline: none;
+}
+
+.search-btn-organic {
+  background-color: var(--green-900);
+  color: var(--white);
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 180ms ease;
+}
+
+.search-btn-organic:hover {
+  background-color: var(--green-800);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(7, 85, 45, 0.2);
+}
+
+/* 3. Main Navigation Bar */
+.main-nav-container {
+  height: 54px;
+  background-color: var(--white);
+}
+
+.nav-link-item {
+  font-size: 14px;
+  font-weight: 600;
+  color: #24382c;
+  padding: 8px 14px;
+  border-radius: 10px;
+  transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-link-item:hover {
+  color: var(--green-800);
+  background-color: var(--green-50);
+}
+
+.nav-link-item.active {
+  color: var(--green-900);
+  background-color: var(--green-50);
+  font-weight: 700;
+}
+
+/* Category CTA Button */
+.btn-category-cta {
+  background-color: var(--green-900);
+  color: var(--white);
+  border-radius: 12px;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(7, 85, 45, 0.15);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-category-cta:hover,
+.btn-category-cta[aria-expanded="true"] {
+  background-color: var(--green-800);
+  box-shadow: 0 4px 12px rgba(8, 118, 59, 0.25);
+}
+
+/* 4. Mega Menu Dropdown & Hover Bridge */
+.mega-menu-wrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding-top: 8px; /* Safe hover area bridge to prevent closing on cursor move */
+  z-index: 50;
+}
+
+.mega-menu-panel {
+  width: 780px;
+  background-color: var(--white);
+  border: 1px solid #e8f0ea;
+  border-radius: 22px;
+  box-shadow: 0 20px 40px -15px rgba(6, 59, 32, 0.12), 0 0 0 1px rgba(6, 59, 32, 0.03);
+  padding: 22px;
+  animation: megaMenuEnter 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes megaMenuEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-vertical-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 13px;
+  border-radius: 12px;
+  transition: all 160ms ease;
+  color: var(--text-main);
+}
+
+.category-vertical-item:hover {
+  background-color: #f2f8f3;
+  color: var(--green-800);
+}
+
+.category-vertical-item:hover .cat-icon-box {
+  background-color: #d8ede0;
+  color: var(--green-900);
+  transform: scale(1.05);
+}
+
+.category-vertical-item:hover .cat-title {
+  color: var(--green-900);
+}
+
+.category-vertical-item:hover .cat-chevron {
+  color: var(--green-800);
+  transform: translateX(3px);
+}
+
+.cat-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #f4f8f5;
+  color: var(--green-900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 160ms ease;
+  flex-shrink: 0;
+}
+
+.cat-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  transition: color 160ms ease;
+}
+
+.cat-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.cat-chevron {
+  width: 16px;
+  height: 16px;
+  color: #a4b5ab;
+  transition: all 160ms ease;
+  flex-shrink: 0;
+}
+
+/* Featured Card in Mega Menu */
+.mega-featured-card {
+  background: linear-gradient(145deg, #063B20 0%, #08763B 100%);
+  border-radius: 18px;
+  padding: 20px;
+  color: var(--white);
+  display: flex;
+  flex-col: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.mega-featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245, 184, 46, 0.18);
+  border: 1px solid rgba(245, 184, 46, 0.4);
+  color: #fde047;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.mega-featured-cta {
+  background: var(--green-600);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 160ms ease;
+}
+
+.mega-featured-cta:hover {
+  background: var(--green-500);
+  color: #063B20;
+  transform: translateX(2px);
+}
+
