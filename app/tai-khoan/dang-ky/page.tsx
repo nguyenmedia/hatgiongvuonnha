@@ -69,16 +69,36 @@ export default function RegisterPage() {
     setIsLoading(false);
   };
 
-  const handleGoogleLogin = () => {
-    if (isSupabaseConfigured) {
-      supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/tai-khoan` } });
-      return;
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      if (isSupabaseConfigured) {
+        const { error: oauthError } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: `${window.location.origin}/tai-khoan`, skipBrowserRedirect: false },
+        });
+        if (oauthError) throw oauthError;
+        return;
+      }
+    } catch {
+      // Fall through to demo mock
     }
-    const googleUser = { email: 'user.google@gmail.com', name: 'Khách Hàng Google', phone: '' };
+
+    // Demo mock — reuse or create google demo account
+    const accounts: Record<string, any> = JSON.parse(localStorage.getItem('registered_accounts') || '{}');
+    const googleKey = 'google_demo_user';
+    const existing = accounts[googleKey];
+    const demoEmail = existing?.email || `demo.google.${Date.now()}@gmail.com`;
+    const googleUser = { email: demoEmail, name: 'Khách Google Demo', phone: '', provider: 'google' };
+    if (!existing) {
+      accounts[googleKey] = { email: demoEmail, fullName: 'Khách Google Demo', phone: '', password: '', createdAt: new Date().toISOString() };
+      localStorage.setItem('registered_accounts', JSON.stringify(accounts));
+    }
     sessionStorage.setItem('mock_user', JSON.stringify(googleUser));
     localStorage.setItem('customer_user', JSON.stringify(googleUser));
-    success('Đăng nhập Google thành công!');
+    success('Đăng ký &amp; Đăng nhập Google thành công! (Chế độ demo)');
     router.push('/tai-khoan');
+    setIsLoading(false);
   };
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;

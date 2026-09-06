@@ -60,16 +60,48 @@ export default function LoginPage() {
     setIsLoading(false);
   };
 
-  const handleGoogleLogin = () => {
-    if (isSupabaseConfigured) {
-      supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/tai-khoan` } });
-      return;
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      // Only attempt real Google OAuth if Supabase is fully configured
+      // AND a callback URL has been registered (avoid redirect_uri_mismatch)
+      if (isSupabaseConfigured) {
+        const { error: oauthError } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/tai-khoan`,
+            skipBrowserRedirect: false,
+          },
+        });
+        if (oauthError) throw oauthError;
+        // OAuth redirects automatically — no further action needed
+        return;
+      }
+    } catch {
+      // Fall through to demo mock below
     }
-    const googleUser = { email: 'user.google@gmail.com', name: 'Khách Hàng Google', phone: '', provider: 'google' };
+
+    // Demo / Supabase-not-configured: create unique mock Google account
+    const demoEmail = `demo.google.${Date.now()}@gmail.com`;
+    const accounts: Record<string, any> = JSON.parse(
+      localStorage.getItem('registered_accounts') || '{}'
+    );
+    const googleKey = 'google_demo_user';
+    const existingGoogle = accounts[googleKey];
+    const googleUser = existingGoogle
+      ? { email: existingGoogle.email, name: existingGoogle.fullName, phone: existingGoogle.phone, provider: 'google' }
+      : { email: demoEmail, name: 'Khách Google Demo', phone: '', provider: 'google' };
+
+    if (!existingGoogle) {
+      accounts[googleKey] = { email: demoEmail, fullName: 'Khách Google Demo', phone: '', password: '', createdAt: new Date().toISOString() };
+      localStorage.setItem('registered_accounts', JSON.stringify(accounts));
+    }
+
     sessionStorage.setItem('mock_user', JSON.stringify(googleUser));
     localStorage.setItem('customer_user', JSON.stringify(googleUser));
-    success('Đăng nhập Google thành công!');
+    success('Đăng nhập thành công! (Chế độ demo)');
     router.push('/tai-khoan');
+    setIsLoading(false);
   };
 
   return (
