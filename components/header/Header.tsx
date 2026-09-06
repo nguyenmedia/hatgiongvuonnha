@@ -125,12 +125,12 @@ export function Header() {
         ══════════════════════════════════════════════════════════ */}
         <div className="border-b border-[#EBF2EC]">
           <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center h-[68px] sm:h-[76px] gap-4 lg:gap-6">
+            <div className="flex items-center h-[56px] sm:h-[64px] lg:h-[76px] gap-3 lg:gap-6">
 
-              {/* Mobile hamburger */}
+              {/* ── MOBILE: Hamburger ── */}
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden flex-shrink-0 p-2 rounded-xl text-slate-600 hover:bg-[#F2FAF5] hover:text-[#08763B] transition-colors"
+                className="lg:hidden flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-[#F2FAF5] hover:text-[#08763B] transition-colors"
                 aria-label="Mở menu"
                 aria-expanded={isMobileMenuOpen}
               >
@@ -140,22 +140,30 @@ export function Header() {
               {/* ── Brand Logo ── */}
               <Link
                 href="/"
-                className="flex items-center gap-3 flex-shrink-0 group"
+                className="flex items-center gap-2 lg:gap-3 flex-shrink-0 group"
                 aria-label="Trang chủ Hạt Giống Nhà Vườn"
               >
-                <div className="relative w-11 h-11 sm:w-[52px] sm:h-[52px] rounded-2xl overflow-hidden flex-shrink-0 bg-gradient-to-tr from-emerald-50 to-amber-50 border border-[#D6EDDB] shadow-sm">
+                <div className="relative w-9 h-9 lg:w-[52px] lg:h-[52px] rounded-xl lg:rounded-2xl overflow-hidden flex-shrink-0 bg-gradient-to-tr from-emerald-50 to-amber-50 border border-[#D6EDDB] shadow-sm">
                   <img
                     src="/logo.png"
                     alt="Hạt Giống Nhà Vườn"
-                    className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-200"
+                    className="w-full h-full object-contain p-0.5 lg:p-1 group-hover:scale-105 transition-transform duration-200"
                   />
                 </div>
-                <div className="hidden sm:flex flex-col leading-none gap-0.5">
+                {/* Mobile: compact brand text */}
+                <div className="flex flex-col leading-none lg:hidden">
+                  <span className="text-[13px] font-extrabold tracking-tight text-[#063B20] font-serif whitespace-nowrap">
+                    HẠT GIỐNG <span className="text-[#16A765]">NHÀ VƯỜN</span>
+                  </span>
+                  <span className="text-[9px] text-[#718078] font-medium mt-0.5">Organic &amp; Garden Seeds</span>
+                </div>
+                {/* Desktop: full brand text */}
+                <div className="hidden lg:flex flex-col leading-none gap-0.5">
                   <div className="flex items-center gap-2">
                     <span className="text-[16px] sm:text-[17px] font-extrabold tracking-tight text-[#063B20] font-serif whitespace-nowrap">
                       HẠT GIỐNG <span className="text-[#16A765]">NHÀ VƯỜN</span>
                     </span>
-                    <span className="hidden md:inline-flex items-center bg-gradient-to-r from-amber-400 to-amber-500 text-[#063B20] text-[8px] font-black uppercase px-2 py-0.5 rounded-full leading-none tracking-wide shadow-sm">
+                    <span className="inline-flex items-center bg-gradient-to-r from-amber-400 to-amber-500 text-[#063B20] text-[8px] font-black uppercase px-2 py-0.5 rounded-full leading-none tracking-wide shadow-sm">
                       F1 PRO
                     </span>
                   </div>
@@ -165,8 +173,8 @@ export function Header() {
                 </div>
               </Link>
 
-              {/* ── Search Bar ── */}
-              <div className="flex-1 max-w-[640px] relative" ref={searchRef}>
+              {/* ── Search Bar — Desktop only ── */}
+              <div className="hidden lg:block flex-1 max-w-[640px] relative" ref={searchRef}>
                 <form onSubmit={handleSearchSubmit} role="search">
                   <div
                     className={`relative flex items-center rounded-2xl border-2 transition-all duration-200 ${
@@ -247,18 +255,21 @@ export function Header() {
                 )}
               </div>
 
+              {/* ── MOBILE spacer ── */}
+              <div className="flex-1 lg:hidden" />
+
               {/* ── Right: Wishlist + Cart + Account ── */}
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1.5 lg:gap-2 flex-shrink-0">
 
                 {/* Wishlist */}
                 <Link
                   href="/yeu-thich"
                   aria-label={`Yêu thích${totalWishlist > 0 ? ` (${totalWishlist})` : ''}`}
-                  className="relative p-2.5 rounded-xl text-slate-500 hover:text-rose-500 hover:bg-rose-50 transition-colors group"
+                  className="relative w-9 h-9 lg:w-auto lg:h-auto lg:p-2.5 flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-500 hover:bg-rose-50 transition-colors group"
                 >
-                  <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <Heart className="w-[18px] h-[18px] lg:w-5 lg:h-5 group-hover:scale-110 transition-transform" />
                   {totalWishlist > 0 && (
-                    <span className="absolute top-1 right-1 min-w-[17px] h-[17px] bg-rose-500 text-white text-[9.5px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
+                    <span className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
                       {totalWishlist}
                     </span>
                   )}
@@ -268,29 +279,29 @@ export function Header() {
                 <button
                   onClick={() => setIsCartOpen(true)}
                   aria-label="Giỏ hàng"
-                  className="relative flex items-center gap-2.5 pl-3 pr-4 h-[44px] bg-[#07552D] hover:bg-[#08763B] active:bg-[#063B20] text-white rounded-xl transition-colors shadow-md hover:shadow-lg group"
+                  className="relative flex items-center gap-2 lg:gap-2.5 pl-2.5 lg:pl-3 pr-3 lg:pr-4 h-9 lg:h-[44px] bg-[#07552D] hover:bg-[#08763B] active:bg-[#063B20] text-white rounded-xl transition-colors shadow-md hover:shadow-lg group"
                 >
                   <div className="relative flex-shrink-0">
-                    <ShoppingBag className="w-[19px] h-[19px] text-[#F5B82E]" />
+                    <ShoppingBag className="w-[17px] h-[17px] lg:w-[19px] lg:h-[19px] text-[#F5B82E]" />
                     {totalItems > 0 && (
-                      <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-[#F5B82E] text-[#063B20] text-[9.5px] font-extrabold rounded-full flex items-center justify-center px-0.5 shadow-sm leading-none">
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] bg-[#F5B82E] text-[#063B20] text-[9px] font-extrabold rounded-full flex items-center justify-center px-0.5 shadow-sm leading-none">
                         {totalItems > 99 ? '99+' : totalItems}
                       </span>
                     )}
                   </div>
-                  <div className="hidden sm:flex flex-col text-left leading-none">
-                    <span className="text-[9.5px] font-semibold text-emerald-300 uppercase tracking-[0.1em]">GIỎ HÀNG</span>
-                    <span className="text-[13px] font-bold text-white mt-0.5">
+                  <div className="flex flex-col text-left leading-none">
+                    <span className="text-[8.5px] lg:text-[9.5px] font-semibold text-emerald-300 uppercase tracking-[0.1em]">GIỎ HÀNG</span>
+                    <span className="text-[11px] lg:text-[13px] font-bold text-white mt-0.5">
                       {totalItems > 0 ? `${totalItems} món` : 'Trống'}
                     </span>
                   </div>
                 </button>
 
-                {/* Account */}
+                {/* Account — desktop only */}
                 <Link
                   href="/tai-khoan"
                   aria-label="Tài khoản"
-                  className="hidden sm:flex flex-col items-center justify-center w-10 h-10 rounded-xl border border-[#D6EDDB] text-slate-500 hover:text-[#08763B] hover:bg-[#F2FAF5] hover:border-[#A8CDB0] transition-colors"
+                  className="hidden lg:flex flex-col items-center justify-center w-10 h-10 rounded-xl border border-[#D6EDDB] text-slate-500 hover:text-[#08763B] hover:bg-[#F2FAF5] hover:border-[#A8CDB0] transition-colors"
                 >
                   <User className="w-[17px] h-[17px]" />
                 </Link>
@@ -521,24 +532,53 @@ export function Header() {
           </div>
         </nav>
 
-        {/* Mobile search row */}
-        <div className="lg:hidden px-4 py-2.5 bg-[#F6FAF7] border-t border-[#EBF2EC]">
-          <form onSubmit={handleSearchSubmit} className="relative" role="search">
-            <Search className="w-3.5 h-3.5 text-[#A0AFA5] absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Tìm hạt giống hoa, rau củ..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-16 py-2 text-[13px] rounded-xl border border-[#D6EDDB] bg-white focus:outline-none focus:border-[#16A765] focus:shadow-[0_0_0_3px_rgba(22,167,101,0.1)] transition-all"
-            />
-            <button
-              type="submit"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-[30px] px-3 bg-[#07552D] text-white text-[12px] font-semibold rounded-lg"
-            >
-              Tìm
-            </button>
+        {/* ── Mobile search row ── */}
+        <div className="lg:hidden px-3 py-2 bg-white border-t border-[#EBF2EC]" ref={searchRef}>
+          <form onSubmit={handleSearchSubmit} role="search">
+            <div className={`relative flex items-center rounded-xl border-2 transition-all duration-200 ${
+              isSearchFocused
+                ? 'border-[#16A765] bg-white shadow-[0_0_0_3px_rgba(22,167,101,0.1)]'
+                : 'border-[#D6EDDB] bg-[#F5FAF6]'
+            }`}>
+              <Search className="w-4 h-4 text-[#A0AFA5] absolute left-3.5 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Tìm hạt giống hoa, dạ yến thảo, rau củ..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                className="w-full pl-10 pr-[72px] py-2.5 text-[13px] bg-transparent font-medium text-[#17231C] placeholder:text-[#B0BEB5] focus:outline-none rounded-xl"
+              />
+              <button
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-[30px] px-4 bg-[#07552D] hover:bg-[#08763B] text-white text-[12.5px] font-bold rounded-lg transition-colors"
+              >
+                Tìm
+              </button>
+            </div>
           </form>
+          {/* Mobile search results */}
+          {isSearchFocused && searchResults.length > 0 && (
+            <div className="mt-2 bg-white rounded-xl border border-[#E3ECE6] shadow-[0_8px_24px_rgba(6,59,32,0.1)] overflow-hidden">
+              {searchResults.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/san-pham/${item.slug}`}
+                  onClick={() => setIsSearchFocused(false)}
+                  className="flex items-center gap-3 px-3.5 py-2.5 hover:bg-[#F6FAF7] transition-colors border-b border-[#F0F5F1] last:border-0"
+                >
+                  <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 border border-[#E3ECE6] bg-[#F6FAF7]">
+                    <img src={item.images?.[0] || 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=100&q=70'} alt={item.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-[#17231C] truncate">{item.name}</p>
+                    <p className="text-[12px] font-bold text-[#08763B]">{formatPrice(item.sale_price || item.price)}</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#C0CFC4] flex-shrink-0" />
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
       </header>
