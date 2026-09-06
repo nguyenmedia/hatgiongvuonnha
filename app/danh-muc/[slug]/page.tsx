@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight, Sparkles, Filter, Sprout, ArrowUpDown, Flame, Home } from 'lucide-react';
+import { ChevronRight, Sparkles, Filter, Sprout, ArrowUpDown, Flame, Home, CheckCircle2 } from 'lucide-react';
 import { INITIAL_CATEGORIES, INITIAL_PRODUCTS } from '@/lib/constants';
 import { isProductInCategory } from '@/lib/utils';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -125,7 +125,7 @@ export default function CategoryPage({ params }: Props) {
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           <Link href="/san-pham" className="hover:text-forest-700 transition">Sản phẩm</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="font-bold text-forest-900">{category?.name || 'Danh mục'}</span>
+          <span className="font-extrabold text-forest-900">{category?.name || 'Danh mục'}</span>
         </nav>
 
         {/* Category Hero Banner */}
@@ -140,21 +140,21 @@ export default function CategoryPage({ params }: Props) {
           <div className="absolute inset-0 bg-gradient-to-r from-forest-950 via-forest-950/80 to-transparent"></div>
 
           <div className="relative z-10 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 text-emerald-300 text-xs font-bold mb-3 border border-emerald-500/30 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 text-emerald-300 text-xs font-black mb-3 border border-emerald-500/30 backdrop-blur-md">
               <span>{category?.icon || '🌱'}</span>
-              <span>Chủng Giống F1 Thuần</span>
+              <span>Chủng Giống F1 Thuần Năng Suất Cao</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold font-serif text-white leading-tight">
               {category?.name}
             </h1>
             <p className="text-xs sm:text-sm text-emerald-100/90 mt-2.5 leading-relaxed">
-              {category?.description || 'Tuyển chọn các loại hạt giống chất lượng cao, tỉ lệ nảy mầm chuẩn F1, phù hợp khí hậu nhiệt đới Việt Nam.'}
+              {category?.description || 'Tuyển chọn các loại hạt giống chất lượng cao, tỉ lệ nảy mầm chuẩn F1 > 85%, phù hợp khí hậu nhiệt đới Việt Nam.'}
             </p>
           </div>
         </div>
 
         {/* Filter & Sort Bar */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-emerald-950/5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-emerald-950/8 shadow-2xs mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Price Range Pills */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">

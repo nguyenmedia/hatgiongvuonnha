@@ -211,35 +211,41 @@ export default function CheckoutPage() {
   const vietQrUrl = `https://img.vietqr.io/image/MB-0934811307-compact2.png?amount=${finalTotal}&addInfo=HG%20DH&accountName=HAT%20GIONG%20NHA%20VUON`;
 
   return (
-    <div className="bg-forest-50/30 min-h-screen py-8">
+    <div className="bg-[#f8faf7] min-h-screen py-6 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-gray-500 mb-6">
-          <Link href="/" className="hover:text-forest-700 transition">Trang chủ</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+        <nav className="flex items-center gap-2 text-xs text-slate-500 mb-6">
+          <Link href="/" className="hover:text-forest-700 transition flex items-center gap-1">
+            <span>Trang chủ</span>
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           <Link href="/gio-hang" className="hover:text-forest-700 transition">Giỏ hàng</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-          <span className="font-semibold text-forest-900">Thanh toán đơn hàng</span>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="font-extrabold text-forest-900">Thanh toán đơn hàng</span>
         </nav>
 
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-forest-950 font-serif mb-8">
-          Thông Tin Giao Hàng & Thanh Toán 📦
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-forest-950 font-serif mb-8 flex items-center gap-3">
+          <CreditCard className="w-7 h-7 text-forest-700" />
+          <span>Thông Tin Giao Hàng &amp; Thanh Toán 📦</span>
         </h1>
 
         <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
           {/* Left: Shipping Details & Payment Option */}
           <div className="lg:col-span-7 space-y-6">
+            
             {/* Customer Info Card */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm space-y-4">
-              <h2 className="text-sm font-bold text-forest-950 uppercase tracking-wider pb-3 border-b flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-forest-800 text-white flex items-center justify-center text-xs">1</span>
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-950/8 shadow-2xs space-y-4">
+              <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-forest-800 text-white flex items-center justify-center text-xs font-black shadow-xs">1</span>
                 <span>Thông Tin Người Nhận Hàng</span>
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">
-                    Họ và tên <span className="text-rose-500">*</span>
+                  <label className="text-xs font-black text-slate-800 block mb-1.5">
+                    Họ và tên quý khách <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -248,22 +254,22 @@ export default function CheckoutPage() {
                     placeholder="Ví dụ: Nguyễn Văn An"
                     value={formData.customer_name}
                     onChange={handleChange}
-                    className="w-full text-xs p-3 border rounded-xl bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600"
+                    className="w-full text-xs p-3.5 border border-slate-200 rounded-2xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600 font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">
-                    Số điện thoại <span className="text-rose-500">*</span>
+                  <label className="text-xs font-black text-slate-800 block mb-1.5">
+                    Số điện thoại nhận hàng <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="tel"
                     name="phone"
                     required
-                    placeholder="Ví dụ: 0934811307"
+                    placeholder="Ví dụ: 0905 123 456"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full text-xs p-3 border rounded-xl bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600"
+                    className="w-full text-xs p-3.5 border border-slate-200 rounded-2xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600 font-medium"
                   />
                 </div>
               </div>
@@ -278,7 +284,7 @@ export default function CheckoutPage() {
                   placeholder="email@example.com"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full text-xs p-3 border rounded-xl bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600"
+                  className="w-full text-xs p-3.5 border border-slate-200 rounded-2xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-forest-600 font-medium"
                 />
               </div>
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Heart, Star, Flame, Check, Sparkles } from 'lucide-react';
+import { ShoppingBag, Heart, Star, Flame, Check, Sparkles, ArrowRight } from 'lucide-react';
 import { Product } from '@/types/database.types';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '../providers/CartProvider';
@@ -33,22 +33,22 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group bg-white rounded-2xl sm:rounded-3xl border border-emerald-950/5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_36px_-6px_rgba(22,101,52,0.16)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col overflow-hidden relative">
+    <div className="group bg-white rounded-3xl border border-emerald-950/8 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_-8px_rgba(22,101,52,0.18)] hover:-translate-y-2 transition-all duration-300 flex flex-col overflow-hidden relative">
       
       {/* Badges Overlay */}
       <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 pointer-events-none">
         {discountPercent > 0 && (
-          <span className="bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md">
+          <span className="bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-md">
             -{discountPercent}%
           </span>
         )}
         {product.is_best_seller && (
-          <span className="bg-gradient-to-r from-amber-400 to-amber-500 text-forest-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
+          <span className="bg-gradient-to-r from-amber-400 to-amber-500 text-forest-950 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
             <Flame className="w-3 h-3 fill-forest-950" /> BÁN CHẠY
           </span>
         )}
         {product.germination_rate && (
-          <span className="bg-forest-900/85 backdrop-blur-md text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 shadow-xs">
+          <span className="bg-forest-950/85 backdrop-blur-md text-emerald-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-400/30 shadow-xs">
             🌱 Mầm {product.germination_rate}
           </span>
         )}
@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
         className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
           isFavorite
             ? 'bg-rose-50 text-rose-500 hover:bg-rose-100 scale-105'
-            : 'bg-white/90 backdrop-blur-md text-slate-400 hover:text-rose-500 hover:bg-white hover:scale-110'
+            : 'bg-white/95 backdrop-blur-md text-slate-400 hover:text-rose-500 hover:bg-white hover:scale-110'
         }`}
         title={isFavorite ? 'Bỏ yêu thích' : 'Yêu thích sản phẩm'}
         aria-label="Yêu thích"
@@ -73,15 +73,15 @@ export function ProductCard({ product }: ProductCardProps) {
       </button>
 
       {/* Product Image Container */}
-      <Link href={`/san-pham/${product.slug}`} className="block relative aspect-square bg-forest-50/40 overflow-hidden">
+      <Link href={`/san-pham/${product.slug}`} className="block relative aspect-square bg-gradient-to-b from-forest-50/60 to-forest-50/20 overflow-hidden">
         <img
           src={mainImage}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           loading="lazy"
         />
         {product.origin && (
-          <div className="absolute bottom-2.5 left-2.5 bg-forest-950/70 backdrop-blur-md text-emerald-200 text-[10px] px-2.5 py-0.5 rounded-full font-medium border border-emerald-500/20">
+          <div className="absolute bottom-2.5 left-2.5 bg-forest-950/80 backdrop-blur-md text-emerald-200 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/20">
             {product.origin}
           </div>
         )}
@@ -95,13 +95,13 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="flex items-center text-amber-400">
               <Star className="w-3.5 h-3.5 fill-amber-400" />
             </div>
-            <span className="text-xs font-bold text-slate-800">{product.rating || 5.0}</span>
-            <span className="text-[11px] text-slate-400">({product.review_count || 48})</span>
+            <span className="text-xs font-black text-slate-800">{product.rating || 5.0}</span>
+            <span className="text-[11px] text-slate-400 font-medium">({product.review_count || 48})</span>
           </div>
 
           {/* Product Title */}
           <Link href={`/san-pham/${product.slug}`}>
-            <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-forest-700 transition-colors line-clamp-2 leading-snug font-sans">
+            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-forest-700 transition-colors line-clamp-2 leading-snug font-sans">
               {product.name}
             </h3>
           </Link>
@@ -117,7 +117,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Pricing & Add To Cart */}
         <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
           <div>
-            <div className="text-sm sm:text-base font-extrabold text-forest-800 leading-none">
+            <div className="text-sm sm:text-base font-black text-forest-800 leading-none font-sans">
               {formatPrice(product.sale_price || product.price)}
             </div>
             {product.sale_price && (
@@ -129,10 +129,10 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <button
             onClick={handleAddToCart}
-            className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl transition-all duration-300 shadow-md shrink-0 ${
+            className={`flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-300 shadow-md shrink-0 ${
               justAdded
-                ? 'bg-emerald-600 text-white scale-105'
-                : 'bg-forest-800 hover:bg-forest-900 text-white hover:scale-105 active:scale-95'
+                ? 'bg-emerald-600 text-white scale-105 shadow-emerald-500/30'
+                : 'bg-gradient-to-r from-forest-800 to-forest-900 hover:from-forest-900 hover:to-forest-950 text-white hover:scale-108 active:scale-95'
             }`}
             title="Thêm vào giỏ hàng"
             aria-label="Thêm vào giỏ hàng"
@@ -140,7 +140,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {justAdded ? (
               <Check className="w-4 h-4 animate-in zoom-in" />
             ) : (
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-4 h-4 text-amber-300" />
             )}
           </button>
         </div>
@@ -148,3 +148,4 @@ export function ProductCard({ product }: ProductCardProps) {
     </div>
   );
 }
+
